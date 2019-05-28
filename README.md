@@ -17,4 +17,4 @@ pages = {9539--9549},
 year = {2018},
 publisher = {Curran Associates, Inc.},
 url = {http://papers.nips.cc/paper/8163-e-snli-natural-language-inference-with-natural-language-explanations.pdf}
-}```
+}

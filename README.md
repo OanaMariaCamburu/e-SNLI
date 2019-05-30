@@ -8,7 +8,8 @@ Trained models can be downloaded at:
 
 # Bibtex
 If you use this dataset or paper in your work, please cite:
-```@incollection{NIPS2018_8163,
+```
+@incollection{NIPS2018_8163,
 title = {e-SNLI: Natural Language Inference with Natural Language Explanations},
 author = {Camburu, Oana-Maria and Rockt\"{a}schel, Tim and Lukasiewicz, Thomas and Blunsom, Phil},
 booktitle = {Advances in Neural Information Processing Systems 31},

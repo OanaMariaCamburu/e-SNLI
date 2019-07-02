@@ -12,7 +12,7 @@ Trained models can be downloaded at:
 * NLTK >= 3
 
 # Bibtex
-If you use this dataset or paper in your work, please cite:
+If you use this dataset or paper in your work, please cite [our paper](https://papers.nips.cc/paper/8163-e-snli-natural-language-inference-with-natural-language-explanations.pdf):
 ```
 @incollection{NIPS2018_8163,
 title = {e-SNLI: Natural Language Inference with Natural Language Explanations},

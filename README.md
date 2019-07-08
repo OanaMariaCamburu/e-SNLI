@@ -6,8 +6,13 @@ Trained models can be downloaded at:
 * ExplainThenPredictAttention: https://drive.google.com/file/d/1l7dnml7mDnT72QrwZMmA7VGIsWjVpQT6/view?usp=sharing
 * ExplanationsToLabels: https://drive.google.com/file/d/1_rFGlFYHSJ1xqjA2lDjzBvO5mf7INo1A/view?usp=sharing
 
+# Dependancies
+* Python 2.7
+* Pytorch 0.3.1
+* NLTK >= 3
+
 # Bibtex
-If you use this dataset or paper in your work, please cite:
+If you use this dataset or code in your work, please cite [our paper](https://papers.nips.cc/paper/8163-e-snli-natural-language-inference-with-natural-language-explanations.pdf):
 ```
 @incollection{NIPS2018_8163,
 title = {e-SNLI: Natural Language Inference with Natural Language Explanations},

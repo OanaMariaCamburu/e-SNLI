@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import torch
 from torch.autograd import Variable
 
-from data_attention_bottom import get_train, get_dev_test_original_expl, get_batch, build_vocab, get_target_expl_batch, get_dev_test_with_expl, get_dev_or_test_without_expl, NLI_DIC_LABELS, SICK_DIC_LABELS, COMP_DIC_LABELS
+from data_attention_bottom import get_train, get_dev_test_original_expl, get_batch, build_vocab, get_target_expl_batch, get_dev_test_with_expl, get_dev_or_test_without_expl, NLI_DIC_LABELS
 import sys
 
 from utils.mutils import get_sentence_from_indices, get_key_from_val, remove_file, assert_sizes, bleu_prediction

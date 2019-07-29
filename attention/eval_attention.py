@@ -17,7 +17,8 @@ import sys
 from utils.mutils import get_sentence_from_indices, get_key_from_val, remove_file, assert_sizes, bleu_prediction
 
 
-GLOVE_PATH = '../dataset/GloVe/glove.840B.300d.txt'
+#GLOVE_PATH = '../dataset/GloVe/glove.840B.300d.txt'
+GLOVE_PATH = '/data/glove/glove.840B.300d.txt'
 
 
 # dataset is the name: dev or test
@@ -115,11 +116,11 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 			x = np.array(range(len(pred_explanation_split)))
 			#print "len(pred_explanation_split) ", len(pred_explanation_split)
 			my_xticks = pred_explanation_split
-			plt.xticks(x, my_xticks)
-			plt.xticks(rotation=90)
-			plt.yticks(y, my_yticks)
-			plt.imshow(all_weights, cmap="gray", vmin=0, vmax=1)
-			plt.savefig(os.path.join(current_run_dir, time.strftime("%d:%m") + "_" + time.strftime("%H:%M:%S") + "_att_" + str(i) + ".png"), dpi=1000)
+			#plt.xticks(x, my_xticks)
+			#plt.xticks(rotation=90)
+			#plt.yticks(y, my_yticks)
+			#plt.imshow(all_weights, cmap="gray", vmin=0, vmax=1)
+			#plt.savefig(os.path.join(current_run_dir, time.strftime("%d:%m") + "_" + time.strftime("%H:%M:%S") + "_att_" + str(i) + ".png"), dpi=1000)
 			#plt.show()
 
 		if i % print_every == 0:

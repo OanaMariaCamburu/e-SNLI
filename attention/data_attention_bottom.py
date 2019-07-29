@@ -3,6 +3,9 @@ import numpy as np
 import torch
 import shutil
 import sys
+import csv
+
+sys.path.append('..')
 
 from utils.mutils import makedirs
 
@@ -18,7 +21,8 @@ def get_batch(batch, word_vec):
     embed = np.zeros((max_len, len(batch), 300))
     for i in range(len(batch)):
         for j in range(min(len(batch[i]), max_len)):
-            embed[j, i, :] = word_vec[batch[i][j]]
+            if batch[i][j] in word_vec: # added to avoid KeyError
+                embed[j, i, :] = word_vec[batch[i][j]]
 
     return torch.from_numpy(embed).float(), lengths
 
@@ -33,7 +37,8 @@ def get_target_expl_batch(batch, word_index):
         # batch[i] from MultiNLI has length 2 because it contains only <s> and </s> so by ignoring it we let the target be <p> which will be ignored from backprop
         if len(batch[i]) > 2:
             for j in range(1, len(batch[i])): # exclude <s>
-                batch_indexes[j - 1, i] = word_index[batch[i][j]]
+                if batch[i][j] in word_index: # added to avoid KeyError
+                    batch_indexes[j - 1, i] = word_index[batch[i][j]]
 
     return torch.from_numpy(batch_indexes).long(), lengths - 1 
 
@@ -92,10 +97,11 @@ def copy_first_k_lines_txt(file, new_file, k):
     f.close()
     g.close()
 
-
+# since not preproc files are available, the following `get` functions are not callable, so I modified the code to use
+# data from ../dataset/ and made sure the output are of the same format
 def get_dev_test_original_expl(data_path, data_type):
     assert data_type in ['dev', 'test']
-
+    '''
     expl_1, expl_2, expl_3 = {}, {}, {}
     expl_1['path'] = os.path.join(data_path, 'preproc1_expl_1.' + data_type)
     expl_2['path'] = os.path.join(data_path, 'preproc1_expl_2.' + data_type)
@@ -111,9 +117,34 @@ def get_dev_test_original_expl(data_path, data_type):
     data = {'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
     return data
+    '''
+    data_path = ''
+    if data_type == 'dev':
+        data_path = './../dataset/esnli_dev.csv'
+    else:
+        data_path = './../dataset/esnli_test.csv'
+
+    data = {}
+    data['expl_1'] = []
+    data['expl_2'] = []
+    data['expl_3'] = []
+
+    with open(data_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                #actual content starts
+                data['expl_1'].append(row[4])
+                data['expl_2'].append(row[9])
+                data['expl_3'].append(row[14])
+            line_count += 1
+   
+    return data
 
 
 def get_train(data_path, preproc, min_freq, n_train):
+    '''
     assert 'eSNLI' in data_path or 'ALLeNLI' in data_path
 
     data_path_train = data_path
@@ -152,11 +183,35 @@ def get_train(data_path, preproc, min_freq, n_train):
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'expl_1': expl_1['sent']}
     
     return data
+    '''
+    #load data from esnli_train_1 and esnli_train_2
+    data = {}
+    data['s1'] = [] #a list of sentence 1's in training data
+    data['s2'] = []
+    data['label'] = []
+    data['expl_1'] = []
+
+    training_files = ['./../dataset/esnli_train_1.csv', 
+                      './../dataset/esnli_train_2.csv']
+    
+    for inputfile in training_files:
+        with open(inputfile) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            line_count = 0
+            for row in csv_reader:
+                if line_count != 0:
+                    #actual content starts
+                    data['label'].append(NLI_DIC_LABELS[row[1]])
+                    data['s1'].append(row[2])
+                    data['s2'].append(row[3])
+                    data['expl_1'].append(row[4])
+                line_count += 1
+    return data
 
 
 def get_dev_test_with_expl(data_path, data_type, preproc, min_freq):
     assert data_type in ['dev', 'test']
-
+    '''
     s1, s2, target_label, expl_1, expl_2, expl_3 = {}, {}, {}, {}, {}, {}
 
     freq_prefix = ""
@@ -184,10 +239,42 @@ def get_dev_test_with_expl(data_path, data_type, preproc, min_freq):
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
     return data
+    '''
+    data_path = ''
+    if data_type == 'dev':
+        data_path = './../dataset/esnli_dev.csv'
+    else:
+        data_path = './../dataset/esnli_test.csv'
+
+    data = {}
+    data['expl_1'] = []
+    data['expl_2'] = []
+    data['expl_3'] = []
+    data['s1'] = []
+    data['s2'] = []
+    data['label'] = []
+
+    with open(data_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                #actual content starts
+                data['expl_1'].append(row[4])
+                data['expl_2'].append(row[9])
+                data['expl_3'].append(row[14])
+                
+                data['label'].append(NLI_DIC_LABELS[row[1]])
+                data['s1'].append(row[2])
+                data['s2'].append(row[3])
+            line_count += 1
+   
+    return data
 
 
 
 def get_dev_or_test_without_expl(data_path, data_type, dic_labels):
+    '''
     s1, s2, target_label = {}, {}, {}
 
     s1['path'] = os.path.join(data_path, 's1.' + data_type)
@@ -203,4 +290,31 @@ def get_dev_or_test_without_expl(data_path, data_type, dic_labels):
     
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data']}
     
+    return data
+    '''
+    data_path = ''
+    if data_type == 'dev':
+        data_path = './../dataset/esnli_dev.csv'
+    else:
+        data_path = './../dataset/esnli_test.csv'
+
+    data = {}
+    data['expl_1'] = []
+    data['expl_2'] = []
+    data['expl_3'] = []
+    data['s1'] = []
+    data['s2'] = []
+    data['label'] = []
+
+    with open(data_path) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+                #actual content starts
+                data['label'].append(NLI_DIC_LABELS[row[1]])
+                data['s1'].append(row[2])
+                data['s2'].append(row[3])
+            line_count += 1
+   
     return data

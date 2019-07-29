@@ -14,17 +14,17 @@ from eval_attention import eval_all
 from models_expl_to_labels import ExplToLabelsNet
 from data_attention_bottom import get_train, get_batch, build_vocab, get_word_dict, get_target_expl_batch, get_dev_test_with_expl, get_dev_or_test_without_expl, NLI_DIC_LABELS
 
-import streamtologger
+#import streamtologger
 
 parser = argparse.ArgumentParser(description='eval')
 
 # saved trained models
 parser.add_argument("--directory", type=str, default='')
-parser.add_argument("--state_path", type=str, default='')
+parser.add_argument("--state_path", type=str, default='./../pretrained/state_dict_best_devppl__devPPL6.082__epoch_19_model.pt')
 parser.add_argument("--eval_batch_size", type=int, default=32)
 
 parser.add_argument("--directory_expl_to_labels", type=str, default='')
-parser.add_argument("--state_path_expl_to_labels", type=str, default='')
+parser.add_argument("--state_path_expl_to_labels", type=str, default='./../pretrained/state_dict_best_devacc__devACC96.780__epoch_12_model.pt')
 
 eval_params = parser.parse_args()
 
@@ -33,7 +33,7 @@ if not os.path.exists("copy_models_attention_bottom_separate.py"):
 from copy_models_attention_bottom_separate import eSNLIAttention
 	
 
-streamtologger.redirect(target=os.path.join(eval_params.directory, time.strftime("%d:%m") + "_" + time.strftime("%H:%M:%S") + 'log_eval.txt'))
+#streamtologger.redirect(target=os.path.join(eval_params.directory, time.strftime("%d:%m") + "_" + time.strftime("%H:%M:%S") + 'log_eval.txt'))
 
 
 # attention model
@@ -41,13 +41,24 @@ state_att = torch.load(os.path.join(eval_params.directory, eval_params.state_pat
 model_config_att = state_att['config_model']
 model_state_dict = state_att['model_state']
 att_net = eSNLIAttention(model_config_att).cuda()
+
+# rosa made changes here:
+# because KeyError: 'unexpected key "decoder.init_proj.weight" in state_dict'
+# and KeyError: 'missing keys in state_dict: "set([\'decoder.context_proj.bias\', \'decoder.context_proj.weight\'])"'
+model_state_dict['decoder.context_proj.bias'] = model_state_dict['decoder.init_proj.bias']
+model_state_dict['decoder.context_proj.weight'] = model_state_dict['decoder.init_proj.weight']
+model_state_dict.pop('decoder.init_proj.bias')
+model_state_dict.pop('decoder.init_proj.weight')
+
 att_net.load_state_dict(model_state_dict)
 params = state_att['params']
-assert params.separate_att == eval_params.separate_att, "params.separate_att " + str(params.separate_att)
+# commented out because AttributeError: 'Namespace' object has no attribute 'separate_att'
+#assert params.separate_att == eval_params.separate_att, "params.separate_att " + str(params.separate_att)
 params.word_vec_expl = model_config_att['word_vec']
 params.current_run_dir = eval_params.directory
 params.eval_batch_size = eval_params.eval_batch_size
-params.eval_just_snli  = eval_params.eval_just_snli
+# commented out because AttributeError: 'Namespace' object has no attribute 'eval_just_snli'
+#params.eval_just_snli  = eval_params.eval_just_snli
 
 # expl_to_label model
 state_expl_to_labels = torch.load(os.path.join(eval_params.directory_expl_to_labels, eval_params.state_path_expl_to_labels))

@@ -10,8 +10,10 @@ from torch.autograd import Variable
 from data_label_in_expl import get_dev_test_original_expl, get_batch, build_vocab, get_target_expl_batch, get_dev_test_with_expl, get_dev_or_test_without_expl, NLI_DIC_LABELS, NLI_LABELS_TO_NLI
 
 import sys
-sys.path.append("..")
+#sys.path.append("..")
+sys.path.append("/raid/data/oanuru/infer_sent_esnli/utils")
 from mutils import get_sentence_from_indices, get_key_from_val, remove_file, assert_sizes, bleu_prediction
+sys.path.append("/raid/data/oanuru/infer_sent_esnli")
 import senteval
 
 PATH_TO_DATA = '../data/senteval_data/'

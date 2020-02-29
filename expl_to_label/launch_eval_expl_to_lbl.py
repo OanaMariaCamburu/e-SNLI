@@ -46,9 +46,9 @@ def evaluate_test(esnli_net, snli_data, params, dataset='test'):
 		
 		# print example
 		if i % params.print_every == 0:
-			print current_run_dir, '\n'
-			print "SNLI TEST example" 
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print(current_run_dir, '\n')
+			print("SNLI TEST example") 
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		row = []
 		row.append()
@@ -59,13 +59,13 @@ def evaluate_test(esnli_net, snli_data, params, dataset='test'):
 			expl_batch = Variable(expl_batch.cuda())
 
 			if i % params.print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
 			
 			# model fwd
 			out_lbl = esnli_net((expl_batch, len_expl))
 			pred = out_lbl.data.max(1)[1]
 			if i % params.print_every == 0:
-				print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n"
+				print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n")
 			
 			correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
@@ -74,7 +74,7 @@ def evaluate_test(esnli_net, snli_data, params, dataset='test'):
 	# accuracy
 	eval_acc = round(100 * correct / total_test_points, 2)
 	return eval_acc
-	print 'test accuracy ', eval_acc
+	print('test accuracy ', eval_acc)
 
 
 GLOVE_PATH = '../dataset/GloVe/glove.840B.300d.txt'

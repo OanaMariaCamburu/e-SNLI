@@ -103,14 +103,14 @@ def bleu_prediction(pred_file, data):
             for j in range(1, 3):
                 current_refs.append(data['expl_' + str(j)][k].strip().split())
             if k % 5000 == 0:
-                print 'refs: ', current_refs
+                print('refs: ', current_refs)
             references.append(current_refs)
             if k == 3:
-                print "candidates ", candidates
-                print "references ", references, '\n\n\n'
+                print("candidates ", candidates)
+                print("references ", references, '\n\n\n')
     
     bleu_score = corpus_bleu(references, candidates)
-    print 'bleu: ', bleu_score
+    print('bleu: ', bleu_score)
     f.close()
     return bleu_score
 
@@ -127,7 +127,7 @@ def bleu_inter_annotations_expl3_wrt_12(data):
         references.append(current_refs)
     
     bleu_score = 100 * corpus_bleu(references, candidates)
-    print 'bleu: ', bleu_score
+    print('bleu: ', bleu_score)
     return round(bleu_score, 2)
 
 
@@ -135,12 +135,12 @@ def remove_file(file):
     try:
         os.remove(file)
     except Exception as e:
-        print("\n\nCouldn't remove " + file + " because ", e)
+        print(("\n\nCouldn't remove " + file + " because ", e))
         pass
 
 
 def n_parameters(model):
-    model_parameters = filter(lambda p: p.requires_grad, model.parameters())
+    model_parameters = [p for p in model.parameters() if p.requires_grad]
     return sum([np.prod(p.size()) for p in model_parameters])
 
 
@@ -166,7 +166,7 @@ def pretty_duration(seconds):
 
 
 def get_key_from_val(val, dic_labels):
-    for k, v in dic_labels.iteritems():
+    for k, v in dic_labels.items():
         if v == val:
             return k
     raise NameError("invalid value " + str(val))
@@ -178,13 +178,13 @@ def get_keys_from_vals(vals, dic_labels):
     for i in range(vals.size(1)):
         val = vals[0][i]
         found = False
-        for k, v in dic_labels.iteritems():
+        for k, v in dic_labels.items():
             if v == val:
                 keys.append(k)
                 found = True
                 break
         if not found:
-            print "vals", vals
+            print("vals", vals)
             raise NameError("invalid value " + str(val))
     return keys
 
@@ -324,9 +324,9 @@ def get_optimizer(s):
     # check that we give good parameters to the optimizer
     expected_args = inspect.getargspec(optim_fn.__init__)[0]
     assert expected_args[:2] == ['self', 'params']
-    if not all(k in expected_args[2:] for k in optim_params.keys()):
+    if not all(k in expected_args[2:] for k in list(optim_params.keys())):
         raise Exception('Unexpected parameters: expected "%s", got "%s"' % (
-            str(expected_args[2:]), str(optim_params.keys())))
+            str(expected_args[2:]), str(list(optim_params.keys()))))
 
     return optim_fn, optim_params
 
@@ -347,12 +347,12 @@ if __name__ == "__main__":
     x[0,0] = 0.7
     x[0,1] = 0.6
     x[1,2] = 0.51
-    print "x", x
+    print("x", x)
     y = Variable(torch.zeros(2,3))
     y[0,0] = 0.8
     y[1,1] = 0.9
-    print "y", y
-    print(bow_precision_recall_fscore_row(x, y))
+    print("y", y)
+    print((bow_precision_recall_fscore_row(x, y)))
 
 
     '''

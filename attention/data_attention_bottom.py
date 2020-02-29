@@ -65,14 +65,14 @@ def get_glove(word_dict, glove_path):
             if word in word_dict:
                 word_vec[word] = np.array(list(map(float, vec.split())))
 
-    print('Found {0}(/{1}) words with glove vectors'.format(len(word_vec), len(word_dict)))
+    print(('Found {0}(/{1}) words with glove vectors'.format(len(word_vec), len(word_dict))))
     return word_vec
 
 
 def build_vocab(sentences, glove_path):
     word_dict = get_word_dict(sentences)
     word_vec = get_glove(word_dict, glove_path)
-    print('Vocab size : {0}'.format(len(word_vec)))
+    print(('Vocab size : {0}'.format(len(word_vec))))
     return word_vec
 
 
@@ -106,7 +106,7 @@ def get_dev_test_original_expl(data_path, data_type):
     expl_3['sent'] = [line.rstrip() for line in open(expl_3['path'], 'r')]                         
 
     assert len(expl_1['sent']) == len(expl_2['sent']) == len(expl_3['sent'])
-    print data_path, data_type, len(expl_1['sent'])
+    print(data_path, data_type, len(expl_1['sent']))
    
     data = {'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
@@ -147,7 +147,7 @@ def get_train(data_path, preproc, min_freq, n_train):
     target_label['data'] = np.array([NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
 
     assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(expl_1['sent'])
-    print data_path, 'TRAIN ', len(s1['sent'])
+    print(data_path, 'TRAIN ', len(s1['sent']))
 
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'expl_1': expl_1['sent']}
     
@@ -179,7 +179,7 @@ def get_dev_test_with_expl(data_path, data_type, preproc, min_freq):
     target_label['data'] = np.array([NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
 
     assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(expl_1['sent']) == len(expl_2['sent']) == len(expl_3['sent'])
-    print data_path, data_type, len(s1['sent'])
+    print(data_path, data_type, len(s1['sent']))
    
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
@@ -199,7 +199,7 @@ def get_dev_or_test_without_expl(data_path, data_type, dic_labels):
     target_label['data'] = np.array([dic_labels[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
 
     assert len(s1['sent']) == len(s2['sent']) == len(target_label['data'])
-    print data_path, data_type.upper(), len(s1['sent'])
+    print(data_path, data_type.upper(), len(s1['sent']))
     
     data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data']}
     

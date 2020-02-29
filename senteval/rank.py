@@ -8,14 +8,14 @@
 '''
 Image-Caption Retrieval with COCO dataset
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import os
 import logging
 import numpy as np
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 

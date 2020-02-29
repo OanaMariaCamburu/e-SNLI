@@ -8,7 +8,7 @@ def remove_file(file):
 	try:
 		os.remove(file)
 	except Exception as e:
-		print("\nCouldn't remove " + file + " because ", e, "\n")
+		print(("\nCouldn't remove " + file + " because ", e, "\n"))
 		pass
 
 
@@ -95,7 +95,7 @@ def truncate_sent(sentence_file, max_tokens):
 
 	f.close()
 	preproc_sent_f.close()
-	print "count truncated ", count_truncated
+	print("count truncated ", count_truncated)
 
 
 def compute_frequences(expl_files):
@@ -113,15 +113,15 @@ def compute_frequences(expl_files):
 
 
 def count_freqs_less_k(word_frequences, k):
-	return sum(i < k for i in word_frequences.values())
+	return sum(i < k for i in list(word_frequences.values()))
 
 
 def words_less_k(word_frequences, k):
 	infreq_words = []
-	for w, freq in word_frequences.iteritems():
+	for w, freq in word_frequences.items():
 		if freq < k:
 			infreq_words.append(w)
-	print "number of infreq_words ", len(infreq_words)
+	print("number of infreq_words ", len(infreq_words))
 	return infreq_words
 
 
@@ -164,11 +164,11 @@ def replace_infreq(expl_file, word_frequences, k):
 
 	f.close()
 	preproc_expl_f.close()
-	print "words_UNK ", words_UNK
-	print "total_words ", total_words
-	print "total distinct words ", len(distinct_words)
-	print "replaced_UNK ", replaced_UNK
-	print "number of distinct words infrequent ", len(words_UNK)
+	print("words_UNK ", words_UNK)
+	print("total_words ", total_words)
+	print("total distinct words ", len(distinct_words))
+	print("replaced_UNK ", replaced_UNK)
+	print("number of distinct words infrequent ", len(words_UNK))
 	return total_words, replaced_UNK, words_UNK, distinct_words
 
 
@@ -203,7 +203,7 @@ def concat_files(list_files, out_file):
 			count += 1
 		f.close()
 	g.close()
-	print "total lines for ", out_file, count
+	print("total lines for ", out_file, count)
 
 
 def prepend_label_expl(label_file, expl_file):
@@ -223,7 +223,7 @@ def prepend_label_expl(label_file, expl_file):
 		g.write(final_line + "\n")
 		count += 1
 
-	print count
+	print(count)
 
 	g.close()
 	label_f.close()
@@ -247,7 +247,7 @@ def append_label_expl(label_file, expl_file):
 		g.write(final_line + "\n")
 		count += 1
 
-	print count
+	print(count)
 
 	g.close()
 	label_f.close()
@@ -285,7 +285,7 @@ def sentence_lenghts(file):
 		if l <= m_3stds:
 			count_within_3stdevs += 1
 			
-	print(file, "mean: ", m, "stdev: ", stdev, "max: ", maxim, "count_within_3stdevs: ", count_within_3stdevs, "count_within_3stdevs_%", count_within_3stdevs*100.0 / len(lengths) )
+	print((file, "mean: ", m, "stdev: ", stdev, "max: ", maxim, "count_within_3stdevs: ", count_within_3stdevs, "count_within_3stdevs_%", count_within_3stdevs*100.0 / len(lengths) ))
 	return m, stdev, maxim
 
 	f.close()

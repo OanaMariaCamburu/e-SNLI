@@ -83,7 +83,7 @@ makedirs(params.results_dir)
 params.save_title += "_" + params.optimizer + "_Enc" + str(params.enc_rnn_dim) + "_bs" + str(params.batch_size) + "_gpu" + str(params.gpu)
 
 if not params.nonlinear_fc:
-	print '\n\n\n WARNING: Classifier is linear only \n\n\n'
+	print('\n\n\n WARNING: Classifier is linear only \n\n\n')
 	params.save_title += "___LINEAR_CLASSIF___"
 
 if params.fc_dim != 512:
@@ -132,7 +132,7 @@ streamtologger.redirect(target=current_run_dir + '/log.txt')
 torch.cuda.set_device(params.gpu_id)
 
 # print parameters passed, and all parameters
-print('\ntogrep : {0}\n'.format(sys.argv[1:]))
+print(('\ntogrep : {0}\n'.format(sys.argv[1:])))
 print(params)
 
 
@@ -187,7 +187,7 @@ config_nli_model = {
 # model
 esnli_net = ExplToLabelsNet(config_nli_model)
 print(esnli_net)
-print("Number of trainable paramters: ", n_parameters(esnli_net))
+print(("Number of trainable paramters: ", n_parameters(esnli_net)))
 
 # loss labels
 criterion_labels = nn.CrossEntropyLoss()
@@ -205,7 +205,7 @@ criterion_labels.cuda()
 TRAIN
 """
 def trainepoch(epoch):
-	print('\nTRAINING : Epoch ' + str(epoch))
+	print(('\nTRAINING : Epoch ' + str(epoch)))
 	esnli_net.train()
 
 	label_costs = []
@@ -218,7 +218,7 @@ def trainepoch(epoch):
 
 	optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * params.decay if epoch>1\
 		and 'sgd' in params.optimizer else optimizer.param_groups[0]['lr']
-	print('Learning rate : {0}'.format(optimizer.param_groups[0]['lr']))
+	print(('Learning rate : {0}'.format(optimizer.param_groups[0]['lr'])))
 
 	for stidx in range(0, len(expl_1), params.batch_size):
 		# prepare batch
@@ -236,11 +236,11 @@ def trainepoch(epoch):
 
 		# print example
 		if stidx % params.print_every == 0:
-			print current_run_dir, '\n'
-			print 'epoch: ', epoch
-			print "Explanation:  ", ' '.join(expl_1[stidx])
-			print "Gold label:  ", get_key_from_val(label[stidx], NLI_DIC_LABELS)
-			print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS)
+			print(current_run_dir, '\n')
+			print('epoch: ', epoch)
+			print("Explanation:  ", ' '.join(expl_1[stidx]))
+			print("Gold label:  ", get_key_from_val(label[stidx], NLI_DIC_LABELS))
+			print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS))
 			
 		# loss labels
 		loss_labels = criterion_labels(out_lbl, tgt_label_batch)
@@ -284,11 +284,11 @@ def trainepoch(epoch):
 		# print and reset losses
 		if len(label_costs) == params.avg_every:
 			train_label_costs.append(np.mean(label_costs))
-			print '{0} ; epoch: {1}, total loss : {2} ; accuracy train expl_to_labels : {3}'.format(stidx, epoch, round(train_label_costs[-1], 2), round(100.*correct/(stidx+expl_batch.size(1)), 2))
+			print('{0} ; epoch: {1}, total loss : {2} ; accuracy train expl_to_labels : {3}'.format(stidx, epoch, round(train_label_costs[-1], 2), round(100.*correct/(stidx+expl_batch.size(1)), 2)))
 			label_costs = []
 
 	train_acc = round(100 * correct/len(expl_1), 2)
-	print('results : epoch {0} ; mean accuracy train esnli : {1}'.format(epoch, train_acc))
+	print(('results : epoch {0} ; mean accuracy train esnli : {1}'.format(epoch, train_acc)))
 	return train_acc
 
 
@@ -298,7 +298,7 @@ def evaluate_dev(epoch):
 
 	correct = 0.
 
-	print('\DEV : Epoch {0}'.format(epoch))
+	print(('\DEV : Epoch {0}'.format(epoch)))
 
 	# eSNLI
 	expl_1 = snli_dev['expl_1']
@@ -312,9 +312,9 @@ def evaluate_dev(epoch):
 		
 		# print example
 		if i % params.print_every == 0:
-			print current_run_dir, '\n'
-			print "SNLI DEV example" 
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print(current_run_dir, '\n')
+			print("SNLI DEV example") 
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		for index in range(1, 4):
 			expl = eval("expl_" + str(index))
@@ -322,13 +322,13 @@ def evaluate_dev(epoch):
 			expl_batch = Variable(expl_batch.cuda())
 
 			if i % params.print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
 			
 			# model fwd
 			out_lbl = esnli_net((expl_batch, len_expl))
 			pred = out_lbl.data.max(1)[1]
 			if i % params.print_every == 0:
-				print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n"
+				print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n")
 			
 			correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
@@ -336,14 +336,14 @@ def evaluate_dev(epoch):
 
 	# accuracy
 	eval_acc = round(100 * correct / total_dev_points, 2)
-	print 'togrep : results : epoch {0} ; mean accuracy {1} '.format(epoch, eval_acc)
+	print('togrep : results : epoch {0} ; mean accuracy {1} '.format(epoch, eval_acc))
 
 	current_best_model_path = None
 
 	if eval_acc > val_acc_best:
 		last_improvement_epoch = epoch
 
-		print('saving model at epoch {0}'.format(epoch))
+		print(('saving model at epoch {0}'.format(epoch)))
 		# save with torch.save
 		best_model_prefix = os.path.join(current_run_dir, 'best_devacc_')
 		current_best_model_path = best_model_prefix + '_devACC{0:.3f}__epoch_{1}_model.pt'.format(eval_acc, epoch)
@@ -364,15 +364,15 @@ def evaluate_dev(epoch):
 	else: # no improvement 
 		if 'sgd' in params.optimizer:
 			optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] / params.lrshrink
-			print('Shrinking lr by : {0}. New lr = {1}'.format(params.lrshrink, optimizer.param_groups[0]['lr']))
+			print(('Shrinking lr by : {0}. New lr = {1}'.format(params.lrshrink, optimizer.param_groups[0]['lr'])))
 			if optimizer.param_groups[0]['lr'] < params.minlr:
 				stop_training = True
-				print "Stopping training because LR < ", params.minlr
+				print("Stopping training because LR < ", params.minlr)
 
 		# for any optimizer early stopping
 		if (epoch - last_improvement_epoch > params.early_stopping_epochs):
 			stop_training = True
-			print "Stopping training because no more improvement done in the last ", params.early_stopping_epochs, " epochs"
+			print("Stopping training because no more improvement done in the last ", params.early_stopping_epochs, " epochs")
 		
 
 	return eval_acc, current_best_model_path
@@ -398,7 +398,7 @@ enc_norms = []
 while not stop_training and epoch <= params.n_epochs:    
 	start = time.time()
 	train_acc = trainepoch(epoch)
-	print "Train epoch " + str(epoch) + " took " + pretty_duration(time.time() - start)
+	print("Train epoch " + str(epoch) + " took " + pretty_duration(time.time() - start))
 
 	# All losses in normal scale
 	lbl_loss_line, = plt.plot(train_label_costs, "b-", label="label loss")
@@ -431,11 +431,11 @@ while not stop_training and epoch <= params.n_epochs:
 
 	epoch += 1
 
-print 'grads norms before clipping ', total_norms
+print('grads norms before clipping ', total_norms)
 
 # Eval the best model
 # Run best model on SNLI test.
-print "best_model_path", best_model_path
+print("best_model_path", best_model_path)
 file = os.path.join(current_run_dir, 'TRAINED.txt')
 f = open(file,'w')
 f.write(best_model_path)
@@ -461,9 +461,9 @@ def evaluate_test():
 		
 		# print example
 		if i % params.print_every == 0:
-			print current_run_dir, '\n'
-			print "SNLI TEST example" 
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print(current_run_dir, '\n')
+			print("SNLI TEST example") 
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		for index in range(1, 4):
 			expl = eval("expl_" + str(index))
@@ -471,13 +471,13 @@ def evaluate_test():
 			expl_batch = Variable(expl_batch.cuda())
 
 			if i % params.print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
 			
 			# model fwd
 			out_lbl = esnli_net((expl_batch, len_expl))
 			pred = out_lbl.data.max(1)[1]
 			if i % params.print_every == 0:
-				print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n"
+				print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n")
 			
 			correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
@@ -485,6 +485,6 @@ def evaluate_test():
 
 	# accuracy
 	eval_acc = round(100 * correct / total_test_points, 2)
-	print 'test accuracy ', eval_acc
+	print('test accuracy ', eval_acc)
 
 evaluate_test()

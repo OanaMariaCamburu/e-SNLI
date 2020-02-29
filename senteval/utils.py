@@ -5,7 +5,7 @@
 # LICENSE file in the root directory of this source tree.
 #
 
-from __future__ import absolute_import, division, unicode_literals
+
 
 import numpy as np
 import re
@@ -25,7 +25,7 @@ def create_dictionary(sentences):
     words['</s>'] = 1e9 + 3
     words['<p>'] = 1e9 + 2
     # words['<UNK>'] = 1e9 + 1
-    sorted_words = sorted(words.items(), key=lambda x: -x[1])  # inverse sort
+    sorted_words = sorted(list(words.items()), key=lambda x: -x[1])  # inverse sort
     id2word = []
     word2id = {}
     for i, (w, _) in enumerate(sorted_words):
@@ -88,8 +88,8 @@ def get_optimizer(s):
     # check that we give good parameters to the optimizer
     expected_args = inspect.getargspec(optim_fn.__init__)[0]
     assert expected_args[:2] == ['self', 'params']
-    if not all(k in expected_args[2:] for k in optim_params.keys()):
+    if not all(k in expected_args[2:] for k in list(optim_params.keys())):
         raise Exception('Unexpected parameters: expected "%s", got "%s"' % (
-            str(expected_args[2:]), str(optim_params.keys())))
+            str(expected_args[2:]), str(list(optim_params.keys()))))
 
     return optim_fn, optim_params

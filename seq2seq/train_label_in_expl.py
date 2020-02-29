@@ -127,7 +127,7 @@ makedirs(params.results_dir)
 params.save_title += "_dec" + str(params.decoder_type.upper()) + "_" + params.optimizer + "_Enc" + str(params.enc_rnn_dim) + "_Dec" + str(params.dec_rnn_dim) + "_bs" + str(params.batch_size) + "_a" + str(params.alpha) + "_gpu" + str(params.gpu)
 
 if not params.nonlinear_fc:
-	print '\n\n\n WARNING: Classifier is linear only \n\n\n'
+	print('\n\n\n WARNING: Classifier is linear only \n\n\n')
 	params.save_title += "___LINEAR_CLASSIF___"
 
 if params.fc_dim != 512:
@@ -207,7 +207,7 @@ streamtologger.redirect(target=current_run_dir + '/log.txt')
 torch.cuda.set_device(params.gpu_id)
 
 # print parameters passed, and all parameters
-print('\ntogrep : {0}\n'.format(sys.argv[1:]))
+print(('\ntogrep : {0}\n'.format(sys.argv[1:])))
 print(params)
 
 
@@ -237,14 +237,14 @@ expl_sentences = train['expl_1'] + snli_dev['expl_1'] + snli_dev['expl_2'] + snl
 word_index = get_word_dict(expl_sentences)
 params.word_index = word_index
 
-print "difference ", set(word_index.keys()) - set(word_index_train.keys())
+print("difference ", set(word_index.keys()) - set(word_index_train.keys()))
 if params.n_train == -1:
 	# there may be some words that appear in premise and hypothesis of train as well as in expl of dev or test but not in explanation of train. There was only one as far as i looked but if there are too many we should maybe take care of this.
 	assert len(word_index) - len(word_index_train) < 5, "n words in train " + str(len(word_index_train)) + " while n words in total " + str(len(word_index))
 
 params.word_emb_dim = 300
 params.n_vocab = len(word_index)
-print("Total number of EXPL words", params.n_vocab)
+print(("Total number of EXPL words", params.n_vocab))
 
 for split in ['s1', 's2', 'expl_1']:
 	train[split] = np.array([['<s>'] + [word for word in sent.split() if word in word_vec] + ['</s>'] for sent in train[split]])
@@ -292,7 +292,7 @@ config_nli_model = {
 # model
 esnli_net = eSNLINet(config_nli_model)
 print(esnli_net)
-print("Number of trainable paramters: ", n_parameters(esnli_net))
+print(("Number of trainable paramters: ", n_parameters(esnli_net)))
 
 # loss labels
 criterion_labels = nn.CrossEntropyLoss()
@@ -315,12 +315,12 @@ criterion_expl.cuda()
 TRAIN
 """
 def trainepoch(epoch):
-	print('\nTRAINING : Epoch ' + str(epoch))
+	print(('\nTRAINING : Epoch ' + str(epoch)))
 	esnli_net.train()
 
 	if (epoch > 1) and (params.annealing_alpha) and (params.alpha + params.annealing_rate <= params.annealing_max):
 		params.alpha += params.annealing_rate
-		print "alpha: ", str(params.alpha)
+		print("alpha: ", str(params.alpha))
 	
 	label_costs = []
 	expl_costs = []
@@ -340,7 +340,7 @@ def trainepoch(epoch):
 
 	optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] * params.decay if epoch>1\
 		and 'sgd' in params.optimizer else optimizer.param_groups[0]['lr']
-	print('Learning rate : {0}'.format(optimizer.param_groups[0]['lr']))
+	print(('Learning rate : {0}'.format(optimizer.param_groups[0]['lr'])))
 
 	for stidx in range(0, len(s1), params.batch_size):
 		# prepare batch
@@ -370,15 +370,15 @@ def trainepoch(epoch):
 
 		# print example
 		if stidx % params.print_every == 0:
-			print current_run_dir, '\n'
-			print 'epoch: ', epoch
-			print "Sentence1:  ", ' '.join(s1[stidx]), " LENGTH: ", s1_len[0]
-			print "Sentence2:  ", ' '.join(s2[stidx]), " LENGTH: ", s2_len[0]
-			print "Gold label:  ", get_key_from_val(label[stidx], NLI_DIC_LABELS)
-			print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS)
-			print "Explanation:  ", ' '.join(expl_1[stidx])
-			print "Target expl:  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGTH: ", lens_tgt_expl[0]
-			print "Decoded explanation:  ", get_sentence_from_indices(word_index, answer_idx[:, 0]), "\n\n\n"
+			print(current_run_dir, '\n')
+			print('epoch: ', epoch)
+			print("Sentence1:  ", ' '.join(s1[stidx]), " LENGTH: ", s1_len[0])
+			print("Sentence2:  ", ' '.join(s2[stidx]), " LENGTH: ", s2_len[0])
+			print("Gold label:  ", get_key_from_val(label[stidx], NLI_DIC_LABELS))
+			print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS))
+			print("Explanation:  ", ' '.join(expl_1[stidx]))
+			print("Target expl:  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGTH: ", lens_tgt_expl[0])
+			print("Decoded explanation:  ", get_sentence_from_indices(word_index, answer_idx[:, 0]), "\n\n\n")
 			
 
 		# loss labels
@@ -432,14 +432,14 @@ def trainepoch(epoch):
 			train_expl_costs.append(params.lmbda * (1 - params.alpha) * np.mean(expl_costs))
 			train_label_costs.append(params.lmbda * params.alpha * np.mean(label_costs))
 			train_ppl.append(math.exp(cum_ppl/cum_n_words))
-			print '{0} ; epoch: {1}, total loss : {2} ; lmbda * alpha * (lbl loss) : {3}; lmbda * (1-alpha) * (expl loss) : {4} ; train ppl : {5}; accuracy train esnli : {6}'.format(stidx, epoch, round(train_all_losses[-1], 2), round(train_label_costs[-1], 2), round(train_expl_costs[-1], 2), round(train_ppl[-1], 2), round(100.*correct/(stidx+s1_batch.size(1)), 2))
+			print('{0} ; epoch: {1}, total loss : {2} ; lmbda * alpha * (lbl loss) : {3}; lmbda * (1-alpha) * (expl loss) : {4} ; train ppl : {5}; accuracy train esnli : {6}'.format(stidx, epoch, round(train_all_losses[-1], 2), round(train_label_costs[-1], 2), round(train_expl_costs[-1], 2), round(train_ppl[-1], 2), round(100.*correct/(stidx+s1_batch.size(1)), 2)))
 			label_costs = []
 			expl_costs = []
 			all_losses = []
 			cum_n_words = 0
 			cum_ppl = 0
 	train_acc = round(100 * correct/len(s1), 2)
-	print('results : epoch {0} ; mean accuracy train esnli : {1}'.format(epoch, train_acc))
+	print(('results : epoch {0} ; mean accuracy train esnli : {1}'.format(epoch, train_acc)))
 	return train_acc
 
 
@@ -451,7 +451,7 @@ def evaluate_dev(epoch):
 	cum_dev_ppl = 0
 	cum_dev_n_words = 0
 
-	print('\DEV : Epoch {0}'.format(epoch))
+	print(('\DEV : Epoch {0}'.format(epoch)))
 
 	# eSNLI
 	s1 = snli_dev['s1']
@@ -470,11 +470,11 @@ def evaluate_dev(epoch):
 		
 		# print example
 		if i % params.print_every == 0:
-			print current_run_dir, '\n'
-			print "SNLI DEV example"
-			print "Sentence1:  ", ' '.join(s1[i]), " LENGTH: ", s1_len[0] 
-			print "Sentence2:  ", ' '.join(s2[i]), " LENGTH: ", s2_len[0] 
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print(current_run_dir, '\n')
+			print("SNLI DEV example")
+			print("Sentence1:  ", ' '.join(s1[i]), " LENGTH: ", s1_len[0]) 
+			print("Sentence2:  ", ' '.join(s2[i]), " LENGTH: ", s2_len[0]) 
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		out_lbl = [0, 1, 2]
 		for index in range(1, 4):
@@ -482,12 +482,12 @@ def evaluate_dev(epoch):
 			input_expl_batch, _ = get_batch(expl[i:i + params.eval_batch_size], word_vec)
 			input_expl_batch = Variable(input_expl_batch[:-1].cuda())
 			if i % params.print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
 			tgt_expl_batch, lens_tgt_expl = get_target_expl_batch(expl[i:i + params.eval_batch_size], word_index)
 			assert tgt_expl_batch.dim() == 2, "tgt_expl_batch.dim()=" + str(tgt_expl_batch.dim())
 			tgt_expl_batch = Variable(tgt_expl_batch).cuda()
 			if i % params.print_every == 0:
-				print "Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0]
+				print("Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0])
 			
 			# model forward, tgt_label is None for both v1 and v2 bcs it's test time for v2
 			out_expl, out_lbl[index-1] = esnli_net((s1_batch, s1_len), (s2_batch, s2_len), input_expl_batch, 'teacher')
@@ -497,15 +497,15 @@ def evaluate_dev(epoch):
 			cum_dev_ppl += loss_expl.data[0]
 			answer_idx = torch.max(out_expl, 2)[1]
 			if i % params.print_every == 0:
-				print "Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0])
-				print "\n"
+				print("Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0]))
+				print("\n")
 
 		assert torch.equal(out_lbl[0], out_lbl[1]), "out_lbl[0]: " + str(out_lbl[0]) + " while " + "out_lbl[1]: " + str(out_lbl[1]) 
 		assert torch.equal(out_lbl[1], out_lbl[2]), "out_lbl[1]: " + str(out_lbl[1]) + " while " + "out_lbl[2]: " + str(out_lbl[2]) 
 		# accuracy
 		pred = out_lbl[0].data.max(1)[1]
 		if i % params.print_every == 0:
-			print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n"
+			print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n")
 		correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
 	total_dev_points = len(s1)
@@ -513,7 +513,7 @@ def evaluate_dev(epoch):
 	
 	# accuracy
 	eval_acc = round(100 * correct / total_dev_points, 2)
-	print 'togrep : results : epoch {0} ; mean accuracy {1} '.format(epoch, eval_acc)
+	print('togrep : results : epoch {0} ; mean accuracy {1} '.format(epoch, eval_acc))
 
 	dev_ppl.append(math.exp(cum_dev_ppl/cum_dev_n_words))
 	current_best_model_path = None
@@ -524,7 +524,7 @@ def evaluate_dev(epoch):
 		
 		# if alpha > 0 we only save the model if increase in ACC
 		if params.alpha > 0.01 and eval_acc > val_acc_best:
-			print('saving model at epoch {0}'.format(epoch))
+			print(('saving model at epoch {0}'.format(epoch)))
 			# save with torch.save
 			best_model_prefix = os.path.join(current_run_dir, 'best_devacc_')
 			current_best_model_path = best_model_prefix + '_devACC{0:.3f}_devppl{1:.3f}__epoch_{2}_model.pt'.format(eval_acc, dev_ppl[-1], epoch)
@@ -546,7 +546,7 @@ def evaluate_dev(epoch):
 			
 		# if alpha = 0 (EXPL_ONLY) we only save the model if decrease in PPL
 		elif params.alpha < 0.01 and dev_ppl[-1] < val_ppl_best:
-			print('saving model at epoch {0}'.format(epoch))
+			print(('saving model at epoch {0}'.format(epoch)))
 			# save with torch.save
 			best_model_prefix = os.path.join(current_run_dir, 'best_devppl_')
 			current_best_model_path = best_model_prefix + '_devPPL{0:.3f}__epoch_{1}_model.pt'.format(dev_ppl[-1], epoch)
@@ -567,16 +567,16 @@ def evaluate_dev(epoch):
 	else: # no improvement at all, regardless whether it's in PPL or ACC
 		if 'sgd' in params.optimizer:
 			optimizer.param_groups[0]['lr'] = optimizer.param_groups[0]['lr'] / params.lrshrink
-			print('Shrinking lr by : {0}. New lr = {1}'.format(params.lrshrink, optimizer.param_groups[0]['lr']))
+			print(('Shrinking lr by : {0}. New lr = {1}'.format(params.lrshrink, optimizer.param_groups[0]['lr'])))
 			if optimizer.param_groups[0]['lr'] < params.minlr:
 				stop_training = True
-				print "Stopping training because LR < ", params.minlr
+				print("Stopping training because LR < ", params.minlr)
 
 		
 		# for any optimizer early stopping
 		if (epoch - last_improvement_epoch > params.early_stopping_epochs):
 			stop_training = True
-			print "Stopping training because no more improvement done in the last ", params.early_stopping_epochs, " epochs"
+			print("Stopping training because no more improvement done in the last ", params.early_stopping_epochs, " epochs")
 		
 
 	return eval_acc, current_best_model_state_dict_path
@@ -607,7 +607,7 @@ enc_norms = []
 while not stop_training and epoch <= params.n_epochs:    
 	start = time.time()
 	train_acc = trainepoch(epoch)
-	print "Train epoch " + str(epoch) + " took " + pretty_duration(time.time() - start)
+	print("Train epoch " + str(epoch) + " took " + pretty_duration(time.time() - start))
 
 	# All losses in normal scale
 	all_loss_line, = plt.plot(train_all_losses, "r-", label="full loss")
@@ -666,10 +666,10 @@ while not stop_training and epoch <= params.n_epochs:
 
 	epoch += 1
 
-print 'grads norms before clipping ', total_norms
+print('grads norms before clipping ', total_norms)
 
 # Eval the best model
-print "best_model_path", best_model_path
+print("best_model_path", best_model_path)
 file = os.path.join(current_run_dir, 'TRAINED.txt')
 f = open(file,'w')
 f.write(best_model_path)

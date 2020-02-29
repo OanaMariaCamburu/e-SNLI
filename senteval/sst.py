@@ -9,7 +9,7 @@
 SST - binary classification
 '''
 
-from __future__ import absolute_import, division, unicode_literals
+
 
 import os
 import io
@@ -64,7 +64,7 @@ class SSTEval(object):
             sorted_data = sorted(zip(self.sst_data[key]['X'],
                                      self.sst_data[key]['y']),
                                  key=lambda z: (len(z[0]), z[1]))
-            self.sst_data[key]['X'], self.sst_data[key]['y'] = map(list, zip(*sorted_data))
+            self.sst_data[key]['X'], self.sst_data[key]['y'] = list(map(list, list(zip(*sorted_data))))
 
             sst_embed[key]['X'] = []
             for ii in range(0, len(self.sst_data[key]['y']), bsize):

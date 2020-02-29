@@ -6,8 +6,8 @@ import numpy as np
 Breaking_b =[55.67, 60.84, 50.31, 48.65, 53.23] 
 Breaking_me = [62.9, 56.29, 55.28, 58.5, 51.64]
 mr_ttest = scipy.stats.ttest_ind(Breaking_b, Breaking_me, axis=0, equal_var=False)
-print "\ndiff ", np.mean(Breaking_me) - np.mean(Breaking_b)
-print("Breaking ", mr_ttest)
+print("\ndiff ", np.mean(Breaking_me) - np.mean(Breaking_b))
+print(("Breaking ", mr_ttest))
 # ('Breaking ', Ttest_indResult(statistic=-1.1205000571143193, pvalue=0.2956371604272169))
 
 '''

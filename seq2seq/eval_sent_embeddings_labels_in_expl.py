@@ -23,7 +23,7 @@ GLOVE_PATH = '../dataset/GloVe/glove.840B.300d.txt'
 # dataset is the name: dev or test
 def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, word_vec, word_index, batch_size, print_every, current_run_dir):
 	assert dataset in ['snli_dev', 'snli_test']
-	print dataset.upper()
+	print(dataset.upper())
 	esnli_net.eval()
 
 	correct = 0.
@@ -56,10 +56,10 @@ def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, w
 		
 		# print example
 		if i % print_every == 0:
-			print "Final SNLI example from " + dataset
-			print "Sentence1:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0]
-			print "Sentence2:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0]
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print("Final SNLI example from " + dataset)
+			print("Sentence1:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0])
+			print("Sentence2:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0])
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		out_lbl = [0, 1, 2, 3]
 		for index in range(1, 4):
@@ -67,13 +67,13 @@ def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, w
 			input_expl_batch, _ = get_batch(expl[i:i + batch_size], word_vec)
 			input_expl_batch = Variable(input_expl_batch[:-1].cuda())
 			if i % print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
-				print "Predicted label by decoder " + str(index) + " :  ", ' '.join(expl[i][0])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
+				print("Predicted label by decoder " + str(index) + " :  ", ' '.join(expl[i][0]))
 			tgt_expl_batch, lens_tgt_expl = get_target_expl_batch(expl[i:i + batch_size], word_index)
 			assert tgt_expl_batch.dim() == 2, "tgt_expl_batch.dim()=" + str(tgt_expl_batch.dim())
 			tgt_expl_batch = Variable(tgt_expl_batch).cuda()
 			if i % print_every == 0:
-				print "Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0]
+				print("Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0])
 			
 			# model forward, tgt_labels is still None bcs in test mode we get the predicted labels
 			out_expl, out_lbl[index-1] = esnli_net((s1_batch, s1_len), (s2_batch, s2_len), input_expl_batch, mode="teacher")
@@ -83,13 +83,13 @@ def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, w
 			cum_test_ppl += loss_expl.data[0]
 			answer_idx = torch.max(out_expl, 2)[1]
 			if i % print_every == 0:
-				print "Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0])
-				print "\n"
+				print("Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0]))
+				print("\n")
 
 		pred_expls, out_lbl[3] = esnli_net((s1_batch, s1_len), (s2_batch, s2_len), input_expl_batch, mode="forloop")
 		if i % print_every == 0:
-			print "Fully decoded explanation: ", pred_expls[0].strip().split()[1:-1]
-			print "Predicted label from decoder: ", pred_expls[0].strip().split()[0]
+			print("Fully decoded explanation: ", pred_expls[0].strip().split()[1:-1])
+			print("Predicted label from decoder: ", pred_expls[0].strip().split()[0])
 
 		for b in range(len(pred_expls)):
 			assert tgt_label_expl_batch[b] in ['entailment', 'neutral', 'contradiction']
@@ -106,7 +106,7 @@ def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, w
 		# accuracy
 		pred = out_lbl[0].data.max(1)[1]
 		if i % print_every == 0:
-			print "Predicted label from classifier:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n"
+			print("Predicted label from classifier:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n")
 		correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
 		# write csv row of predictions
@@ -134,7 +134,7 @@ def evaluate_snli_final(esnli_net, criterion_expl, dataset, data, expl_no_unk, w
 	expl_f.close()
 	bleu_score = 100 * bleu_prediction(expl_csv, expl_no_unk)
 
-	print dataset.upper() + ' SNLI accuracy: ', eval_acc, 'bleu score: ', bleu_score, 'ppl: ', eval_ppl, 'eval_acc_label_expl: ', eval_acc_label_expl
+	print(dataset.upper() + ' SNLI accuracy: ', eval_acc, 'bleu score: ', bleu_score, 'ppl: ', eval_ppl, 'eval_acc_label_expl: ', eval_acc_label_expl)
 	return eval_acc, round(bleu_score, 2), round(eval_ppl, 2), eval_acc_label_expl
 
 
@@ -203,16 +203,16 @@ def eval_datasets_without_expl(esnli_net, which_set, data, word_vec, word_emb_di
 
 		# print example
 		if i % print_every == 0:
-			print which_set.upper() + " example: "
-			print "Premise:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0]
-			print "Hypothesis:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0]
-			print "Gold label:  ", get_key_from_val(label[i], dict_labels)
-			print "Predicted label:  ", get_key_from_val(pred[0], dict_labels)
-			print "Predicted explanation:  ", pred_expls[0], "\n\n\n"
+			print(which_set.upper() + " example: ")
+			print("Premise:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0])
+			print("Hypothesis:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0])
+			print("Gold label:  ", get_key_from_val(label[i], dict_labels))
+			print("Predicted label:  ", get_key_from_val(pred[0], dict_labels))
+			print("Predicted explanation:  ", pred_expls[0], "\n\n\n")
 
 	eval_acc = round(100 * correct / len(s1), 2)
 	eval_acc_label_expl = round(100 * correct_labels_expl / len(s1), 2)
-	print which_set.upper() + " no train ", eval_acc, '\n\n\n'
+	print(which_set.upper() + " no train ", eval_acc, '\n\n\n')
 	expl_f.close()
 	return eval_acc, eval_acc_label_expl
 
@@ -310,7 +310,7 @@ def eval_all(esnli_net, criterion_expl, params):
 
 	se = senteval.engine.SE(params_senteval, batcher, prepare)
 	results = se.eval(transfer_tasks)
-	print "results ", results
+	print("results ", results)
 
 	macro_dev = 0
 	micro_dev = 0
@@ -404,7 +404,7 @@ def eval_all(esnli_net, criterion_expl, params):
 
 		se = senteval.engine.SE(params_senteval, batcher, prepare)
 		results = se.eval(['SNLI'])
-		print "results SNLI classif trained with SentEval ", results
+		print("results SNLI classif trained with SentEval ", results)
 
 		headers.append('SNLI_train_classif')
 		row_dev.append(round(results['SNLI']['devacc'], 1))

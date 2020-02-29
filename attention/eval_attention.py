@@ -24,7 +24,7 @@ GLOVE_PATH = '../dataset/GloVe/glove.840B.300d.txt'
 # visualize is True or False, if True it plots the att weights as an image for each *first* element of the minibatch
 def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, data, snli_dev_no_unk, snli_test_no_unk, word_vec, word_index, batch_size, print_every, current_run_dir, visualize):
 	assert dataset in ['snli_dev', 'snli_test']
-	print dataset.upper()
+	print(dataset.upper())
 	esnli_net.eval()
 
 	correct = 0.
@@ -56,10 +56,10 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 		
 		# print example
 		if i % print_every == 0:
-			print "Final SNLI example from " + dataset
-			print "Sentence1:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0]
-			print "Sentence2:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0]
-			print "Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS)
+			print("Final SNLI example from " + dataset)
+			print("Sentence1:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0])
+			print("Sentence2:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0])
+			print("Gold label:  ", get_key_from_val(label[i], NLI_DIC_LABELS))
 
 		out_lbl = [0, 1, 2, 3]
 		for index in range(1, 4):
@@ -67,12 +67,12 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 			input_expl_batch, _ = get_batch(expl[i:i + batch_size], word_vec)
 			input_expl_batch = Variable(input_expl_batch[:-1].cuda())
 			if i % print_every == 0:
-				print "Explanation " + str(index) + " :  ", ' '.join(expl[i])
+				print("Explanation " + str(index) + " :  ", ' '.join(expl[i]))
 			tgt_expl_batch, lens_tgt_expl = get_target_expl_batch(expl[i:i + batch_size], word_index)
 			assert tgt_expl_batch.dim() == 2, "tgt_expl_batch.dim()=" + str(tgt_expl_batch.dim())
 			tgt_expl_batch = Variable(tgt_expl_batch).cuda()
 			if i % print_every == 0:
-				print "Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0]
+				print("Target expl " + str(index) + " :  ", get_sentence_from_indices(word_index, tgt_expl_batch[:, 0]), " LENGHT: ", lens_tgt_expl[0])
 			
 			
 			# model forward, tgt_labels is still None bcs in test mode we get the predicted labels
@@ -83,8 +83,8 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 			cum_test_ppl += loss_expl.data[0]
 			answer_idx = torch.max(out_expl, 2)[1]
 			if i % print_every == 0:
-				print "Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0])
-				print "\n"
+				print("Decoded explanation " + str(index) + " :  ", get_sentence_from_indices(word_index, answer_idx[:, 0]))
+				print("\n")
 
 		pred_expls = esnli_net((s1_batch, s1_len), (s2_batch, s2_len), input_expl_batch, mode="forloop", visualize=visualize)
 		if visualize:
@@ -107,12 +107,12 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 			# size: (len_p + len_h) x current_T_dec
 			all_weights = all_weights.data.cpu().numpy()
 			# yaxis is the concatenation of premise and hypothesis
-			y = np.array(range(len(sentence1_split) + len(sentence2_split)))
+			y = np.array(list(range(len(sentence1_split) + len(sentence2_split))))
 			#print "len(sentence1_split) + len(sentence2_split) ", len(sentence1_split) + len(sentence2_split)
 			my_yticks = np.append(sentence1_split, sentence2_split)
 			#print "my_yticks ", my_yticks
 			# x axis is the pred expl
-			x = np.array(range(len(pred_explanation_split)))
+			x = np.array(list(range(len(pred_explanation_split))))
 			#print "len(pred_explanation_split) ", len(pred_explanation_split)
 			my_xticks = pred_explanation_split
 			plt.xticks(x, my_xticks)
@@ -123,7 +123,7 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 			#plt.show()
 
 		if i % print_every == 0:
-			print "Fully decoded explanation: ", pred_expls[0]
+			print("Fully decoded explanation: ", pred_expls[0])
 
 		pred_expls_with_sos = np.array([['<s>'] + [word for word in sent.split()] + ['</s>'] for sent in pred_expls])
 		pred_expl_batch, pred_expl_len = get_batch(pred_expls_with_sos, word_vec)
@@ -134,7 +134,7 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 		# accuracy
 		pred = out_lbl.data.max(1)[1]
 		if i % print_every == 0:
-			print "Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n"
+			print("Predicted label:  ", get_key_from_val(pred[0], NLI_DIC_LABELS), "\n\n\n")
 		correct += pred.long().eq(tgt_label_batch.data.long()).cpu().sum()
 
 		# write csv row of predictions
@@ -161,7 +161,7 @@ def evaluate_snli_final(esnli_net, expl_to_labels_net, criterion_expl, dataset, 
 		bleu_score = bleu_prediction(expl_csv, snli_test_no_unk)
 
 	bleu_score = 100 * bleu_score
-	print dataset.upper() + ' SNLI accuracy: ', eval_acc, 'bleu score: ', bleu_score, 'ppl: ', eval_ppl
+	print(dataset.upper() + ' SNLI accuracy: ', eval_acc, 'bleu score: ', bleu_score, 'ppl: ', eval_ppl)
 	return eval_acc, round(bleu_score, 2), round(eval_ppl, 2)
 
 
@@ -224,15 +224,15 @@ def eval_datasets_without_expl(esnli_net, expl_to_labels_net, which_set, data, w
 
 		# print example
 		if i % print_every == 0:
-			print which_set.upper() + " example: "
-			print "Premise:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0]
-			print "Hypothesis:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0]
-			print "Gold label:  ", get_key_from_val(label[i], dict_labels)
-			print "Predicted label:  ", get_key_from_val(pred[0], dict_labels)
-			print "Predicted explanation:  ", pred_expls[0], "\n\n\n"
+			print(which_set.upper() + " example: ")
+			print("Premise:  ", ' '.join(s1[i]), " LENGHT: ", s1_len[0])
+			print("Hypothesis:  ", ' '.join(s2[i]), " LENGHT: ", s2_len[0])
+			print("Gold label:  ", get_key_from_val(label[i], dict_labels))
+			print("Predicted label:  ", get_key_from_val(pred[0], dict_labels))
+			print("Predicted explanation:  ", pred_expls[0], "\n\n\n")
 
 	eval_acc = round(100 * correct / len(s1), 2)
-	print which_set.upper() + " no train ", eval_acc, '\n\n\n'
+	print(which_set.upper() + " no train ", eval_acc, '\n\n\n')
 	expl_f.close()
 	return eval_acc
 

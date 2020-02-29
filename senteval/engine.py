@@ -10,7 +10,7 @@
 Generic sentence evaluation scripts wrapper
 
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 from senteval import utils
 from senteval.binary import CREval, MREval, MPQAEval, SUBJEval

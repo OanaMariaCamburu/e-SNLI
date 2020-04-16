@@ -4,6 +4,8 @@
 
 **`!`** New dataset of visual textual entailment with natural language explanations taken from e-SNLI: [e-SNLI-VE-2.0: Corrected Visual-Textual Entailment with Natural Language Explanations](https://arxiv.org/abs/2004.03744). At the IEEE CVPR Workshop on Fair, Data Efficient and Trusted Computer Vision, 2020
 
+**`!`** If also interested in feature-based explanations besides natural language explanations, check out our new work on verifying post-hoc explanatory methods: [Can I Trust the Explainer? Verifying Post-hoc Explanatory Methods](https://arxiv.org/abs/1910.02065). At NeurIPS 2019 Workshop on Safety and Robustness in Decision Making, 2020.
+
 # e-SNLI
 There are 2 splits for the train set due to the github sie restrictions, please simply merge them.
 

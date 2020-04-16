@@ -1,3 +1,9 @@
+# News
+
+**`!`** New work on e-SNLI: [Make Up Your Mind! Adversarial Generation of Inconsistent Natural Language Explanations](https://arxiv.org/abs/1910.03065). Accepted as a short paper at ACL, 2020.
+
+**`!`** New dataset of visual textual entailment with natural language explanations taken from e-SNLI: [e-SNLI-VE-2.0: Corrected Visual-Textual Entailment with Natural Language Explanations](https://arxiv.org/abs/2004.03744). At the IEEE CVPR Workshop on Fair, Data Efficient and Trusted Computer Vision, 2020
+
 # e-SNLI
 There are 2 splits for the train set due to the github sie restrictions, please simply merge them.
 

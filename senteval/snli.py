@@ -69,7 +69,7 @@ class SNLIEval(object):
 
     def run(self, params, batcher):
         self.X, self.y = {}, {}
-        dico_label = {'entailment': 0,  'neutral': 1, 'contradiction': 2}
+        dico_label = {'entailment': 0, 'neutral': 1, 'contradiction': 2}
         for key in self.data:
             if key not in self.X:
                 self.X[key] = []
@@ -88,7 +88,7 @@ class SNLIEval(object):
                     enc2 = batcher(params, batch2)
                     enc_input.append(np.hstack((enc1, enc2, enc1 * enc2,
                                                 np.abs(enc1 - enc2))))
-                if (ii*params.batch_size) % (20000*params.batch_size) == 0:
+                if (ii * params.batch_size) % (20000 * params.batch_size) == 0:
                     logging.info("PROGRESS (encoding): %.2f%%" %
                                  (100 * ii / n_labels))
             self.X[key] = np.vstack(enc_input)

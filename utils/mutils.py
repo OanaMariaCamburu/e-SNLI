@@ -52,6 +52,7 @@ def get_dev_test_with_expl(data_path, data_type, preproc, min_freq):
 '''
 ##############################################################################
 
+
 def get_dir(file):
     directory = "."
     f = file.split("/")
@@ -75,9 +76,8 @@ def new_file_name(file, prefix):
             directory = f[i]
         else:
             directory += "/" + f[i]
-    new_file = directory + "/" + prefix +"__" + file 
+    new_file = directory + "/" + prefix + "__" + file
     return new_file
-
 
 
 def permute(x, perm):
@@ -85,7 +85,7 @@ def permute(x, perm):
     for i in perm:
         perm_x.append(x[i])
     return perm_x
-    
+
 
 def bleu_prediction(pred_file, data):
     candidates = []
@@ -108,7 +108,7 @@ def bleu_prediction(pred_file, data):
             if k == 3:
                 print("candidates ", candidates)
                 print("references ", references, '\n\n\n')
-    
+
     bleu_score = corpus_bleu(references, candidates)
     print('bleu: ', bleu_score)
     f.close()
@@ -125,7 +125,7 @@ def bleu_inter_annotations_expl3_wrt_12(data):
         for j in range(1, 3):
             current_refs.append(data['expl_' + str(j)][k])
         references.append(current_refs)
-    
+
     bleu_score = 100 * corpus_bleu(references, candidates)
     print('bleu: ', bleu_score)
     return round(bleu_score, 2)
@@ -147,7 +147,8 @@ def n_parameters(model):
 def makedirs(name):
     """helper function for python 2 and 3 to call os.makedirs()
        avoiding an error if the directory to be created already exists"""
-    import os, errno
+    import os
+    import errno
     try:
         os.makedirs(name)
     except OSError as ex:
@@ -203,7 +204,7 @@ def get_sentence_from_indices(dictionary, tensor_indices):
 def get_bow_expl_from_indices(out_vocab, tensor_indices):
     s = ''
     for i in range(len(tensor_indices)):
-        if tensor_indices[i].data[0] >= 0.5:
+        if tensor_indices[i].item() >= 0.5:
             s += ' ' + get_key_from_val(i, out_vocab)
     return s.strip()
 
@@ -218,9 +219,10 @@ def bow_correct(pred, tgt):
     agree = (bool_tgt == bool_pred).float()
     sum_row_agree = agree.data.sum(1)
     assert_sizes(sum_row_agree, 1, [pred.size(0)])
-    #print "agree", agree
-    assert sum_row_agree.sum() == agree.sum().data[0], str(sum_row_agree.sum()) + " while " + str(agree.sum().data[0])
-    return agree.sum().data[0]
+    # print "agree", agree
+    assert sum_row_agree.sum() == agree.sum().item(), str(
+        sum_row_agree.sum()) + " while " + str(agree.sum().item())
+    return agree.sum().item()
 
 
 def bow_correct_per_row(pred, tgt):
@@ -233,10 +235,11 @@ def bow_correct_per_row(pred, tgt):
     agree = (bool_tgt == bool_pred).float()
     sum_row_agree = agree.data.sum(1)
     assert_sizes(sum_row_agree, 1, [pred.size(0)])
-    #print "pred", pred
-    #print "tgt", tgt
-    #print "sum_row_agree", sum_row_agree
-    assert sum_row_agree.sum() == bow_correct(pred, tgt), str(sum_row_agree.sum()) + " while " + str(bow_correct(pred, tgt))
+    # print "pred", pred
+    # print "tgt", tgt
+    # print "sum_row_agree", sum_row_agree
+    assert sum_row_agree.sum() == bow_correct(pred, tgt), str(
+        sum_row_agree.sum()) + " while " + str(bow_correct(pred, tgt))
     return sum_row_agree
 
 
@@ -244,7 +247,8 @@ def bow_precision_recall_fscore_sum(pred, tgt):
     assert_same_dims(pred, tgt)
     assert len(pred.size()) == 2, str(len(pred.size()))
 
-    precision_row, recall_row, fscore_row = bow_precision_recall_fscore_row(pred, tgt)
+    precision_row, recall_row, fscore_row = bow_precision_recall_fscore_row(
+        pred, tgt)
 
     return precision_row.sum(), recall_row.sum(), fscore_row.sum()
 
@@ -266,20 +270,24 @@ def bow_precision_recall_fscore_row(pred, tgt):
     recall = n_pred_correct / (n_correct + 1e-6)
 
     fscore = 2 * (precision * recall) / (precision + recall + 1e-6)
-    
+
     return precision, recall, fscore
 
 
 def assert_sizes(t, dims, sizes):
-    assert len(t.size()) == dims, "input dim: " + str(len(t.size())) + " required dim " + str(dims)
+    assert len(t.size()) == dims, "input dim: " + \
+        str(len(t.size())) + " required dim " + str(dims)
     for i in range(dims):
-        assert t.size(i) == sizes[i], "in size " + str(i) + " given " + str(t.size(i)) + " expected " + str(sizes[i])
+        assert t.size(i) == sizes[i], "in size " + str(i) + \
+            " given " + str(t.size(i)) + " expected " + str(sizes[i])
 
 
 def assert_same_dims(x, y):
-    assert len(x.size()) == len(y.size()), str(len(x.size())) + " vs " + str(len(y.size()))
+    assert len(x.size()) == len(y.size()), str(
+        len(x.size())) + " vs " + str(len(y.size()))
     for i in range(len(x.size())):
-        assert x.size(i) == y.size(i), "for dim " + str(i) + " x has " + str(x.size(i)) + " y has " + str(y.size(i))
+        assert x.size(i) == y.size(i), "for dim " + str(i) + \
+            " x has " + str(x.size(i)) + " y has " + str(y.size(i))
 
 
 def get_optimizer(s):
@@ -343,17 +351,16 @@ if __name__ == "__main__":
     import torch
     from torch.autograd import Variable
 
-    x = Variable(torch.zeros(2,3))
-    x[0,0] = 0.7
-    x[0,1] = 0.6
-    x[1,2] = 0.51
+    x = Variable(torch.zeros(2, 3))
+    x[0, 0] = 0.7
+    x[0, 1] = 0.6
+    x[1, 2] = 0.51
     print("x", x)
-    y = Variable(torch.zeros(2,3))
-    y[0,0] = 0.8
-    y[1,1] = 0.9
+    y = Variable(torch.zeros(2, 3))
+    y[0, 0] = 0.8
+    y[1, 1] = 0.9
     print("y", y)
     print((bow_precision_recall_fscore_row(x, y)))
-
 
     '''
     # compute BLEU inter-annotators
@@ -367,6 +374,3 @@ if __name__ == "__main__":
     #bleu_inter_annotations_expl3_wrt_12(snli_dev)
     bleu_inter_annotations_expl3_wrt_12(snli_test)
     '''
-
-
-

@@ -10,7 +10,6 @@ SST - binary classification
 '''
 
 
-
 import os
 import io
 import logging
@@ -27,7 +26,8 @@ class SSTEval(object):
         assert nclasses in [2, 5]
         self.nclasses = nclasses
         self.task_name = 'Binary' if self.nclasses == 2 else 'Fine-Grained'
-        logging.debug('***** Transfer task : SST %s classification *****\n\n', self.task_name)
+        logging.debug(
+            '***** Transfer task : SST %s classification *****\n\n', self.task_name)
 
         train = self.loadFile(os.path.join(task_path, 'sentiment-train'))
         dev = self.loadFile(os.path.join(task_path, 'sentiment-dev'))
@@ -36,7 +36,7 @@ class SSTEval(object):
 
     def do_prepare(self, params, prepare):
         samples = self.sst_data['train']['X'] + self.sst_data['dev']['X'] + \
-                  self.sst_data['test']['X']
+            self.sst_data['test']['X']
         return prepare(params, samples)
 
     def loadFile(self, fpath):
@@ -64,7 +64,8 @@ class SSTEval(object):
             sorted_data = sorted(zip(self.sst_data[key]['X'],
                                      self.sst_data[key]['y']),
                                  key=lambda z: (len(z[0]), z[1]))
-            self.sst_data[key]['X'], self.sst_data[key]['y'] = list(map(list, list(zip(*sorted_data))))
+            self.sst_data[key]['X'], self.sst_data[key]['y'] = list(
+                map(list, list(zip(*sorted_data))))
 
             sst_embed[key]['X'] = []
             for ii in range(0, len(self.sst_data[key]['y']), bsize):

@@ -11,7 +11,6 @@ STS-benchmark (supervised) tasks
 '''
 
 
-
 import os
 import io
 import numpy as np
@@ -30,8 +29,8 @@ class STSEval(object):
 
         for dataset in self.datasets:
             sent1, sent2 = list(zip(*[l.split("\t") for l in
-                               io.open(fpath + '/STS.input.%s.txt' % dataset,
-                                       encoding='utf8').read().splitlines()]))
+                                      io.open(fpath + '/STS.input.%s.txt' % dataset,
+                                              encoding='utf8').read().splitlines()]))
             raw_scores = np.array([x for x in
                                    io.open(fpath + '/STS.gs.%s.txt' % dataset,
                                            encoding='utf8')
@@ -53,7 +52,8 @@ class STSEval(object):
         if 'similarity' in params:
             self.similarity = params.similarity
         else:  # Default similarity is cosine
-            self.similarity = lambda s1, s2: np.nan_to_num(cosine(np.nan_to_num(s1), np.nan_to_num(s2)))
+            self.similarity = lambda s1, s2: np.nan_to_num(
+                cosine(np.nan_to_num(s1), np.nan_to_num(s2)))
         return prepare(params, self.samples)
 
     def run(self, params, batcher):
@@ -83,9 +83,9 @@ class STSEval(object):
 
         weights = [results[dset]['nsamples'] for dset in list(results.keys())]
         list_prs = np.array([results[dset]['pearson'][0] for
-                            dset in list(results.keys())])
+                             dset in list(results.keys())])
         list_spr = np.array([results[dset]['spearman'][0] for
-                            dset in list(results.keys())])
+                             dset in list(results.keys())])
 
         avg_pearson = np.average(list_prs)
         avg_spearman = np.average(list_spr)

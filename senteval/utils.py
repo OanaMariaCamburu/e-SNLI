@@ -6,7 +6,6 @@
 #
 
 
-
 import numpy as np
 import re
 import inspect
@@ -25,7 +24,8 @@ def create_dictionary(sentences):
     words['</s>'] = 1e9 + 3
     words['<p>'] = 1e9 + 2
     # words['<UNK>'] = 1e9 + 1
-    sorted_words = sorted(list(words.items()), key=lambda x: -x[1])  # inverse sort
+    sorted_words = sorted(list(words.items()),
+                          key=lambda x: -x[1])  # inverse sort
     id2word = []
     word2id = {}
     for i, (w, _) in enumerate(sorted_words):

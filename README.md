@@ -10,10 +10,13 @@
 There are 2 splits for the train set due to the github sie restrictions, please simply merge them.
 
 Clarification on the two potentially confusing headers:
-* Sentence1_marked_1: is the premise (Sentence2 for hypothesis) were words between star (*) were highlighted by the annotators. The annotators had to click on every word individually to highlght it. The punctuation has not been separated from the words, hence highlighting a word automatically included any punctuation near it.
-* Sentence1_Highlighted_1: is the list of indices of the highlighted words, where the index starts at 0 and the organization is only done by splitting with space.
 
-The tokanization for models was more advance and can be found in https://github.com/OanaMariaCamburu/e-SNLI/blob/master/tokenizer.sed. Our models do not make use of the highlighted words.
+* Sentence1_marked_1: is the premise (Sentence2 for hypothesis) were words between star (*) were highlighted by the annotators. The annotators had to click on every word individually to highlight it. The punctuation has not been separated from the words, hence highlighting a word automatically included any punctuation near it.
+Please use only this header to retrieve the highlighted words simply by retrieving the words between stars without space between them, i.e., things like *w1* w2 *w3* only w1 and w3 were highlighted. 
+
+Please *ignore* the fields Sentence_Highlighted_ and retrieve the highlighted words from the Sentence_marked_ fields as stated above.
+
+
 
 # Trained models
 Trained models can be downloaded at:

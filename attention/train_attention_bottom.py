@@ -379,7 +379,7 @@ def trainepoch(epoch):
             if p.requires_grad:
                 p.grad.data.div_(current_bs)
                 total_norm += p.grad.data.norm() ** 2
-        total_norm = np.sqrt(total_norm)
+        total_norm = np.sqrt(total_norm.cpu())
         total_norms.append(total_norm)
 
         # encoder grads norm
@@ -387,7 +387,7 @@ def trainepoch(epoch):
         for p in esnli_net.encoder.parameters():
             if p.requires_grad:
                 enc_norm += p.grad.data.norm() ** 2
-        enc_norm = np.sqrt(enc_norm)
+        enc_norm = np.sqrt(enc_norm.cpu())
         enc_norms.append(enc_norm)
 
         if total_norm > params.max_norm:

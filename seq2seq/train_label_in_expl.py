@@ -258,8 +258,9 @@ ALL DATA, some will only be needed for eval for we want to build glove vocab onc
 """
 preproc = params.preproc_expl + "_"
 train = get_train(params.esnli_path, preproc, params.min_freq, params.n_train)
-
 snli_dev = get_dev_test_with_expl(
+    params.esnli_path, 'dev', preproc, params.min_freq)
+snli_test = get_dev_test_with_expl(
     params.esnli_path, 'dev', preproc, params.min_freq)
 
 all_sentences = train['s1'] + train['s2'] + train['expl_1'] + snli_dev['s1'] + \
@@ -465,7 +466,7 @@ def trainepoch(epoch):
             if p.requires_grad:
                 p.grad.data.div_(current_bs)
                 total_norm += p.grad.data.norm() ** 2
-        total_norm = np.sqrt(total_norm)
+        total_norm = np.sqrt(total_norm.cpu())
         total_norms.append(total_norm)
 
         # encoder grads norm
@@ -473,7 +474,7 @@ def trainepoch(epoch):
         for p in esnli_net.encoder.parameters():
             if p.requires_grad:
                 enc_norm += p.grad.data.norm() ** 2
-        enc_norm = np.sqrt(enc_norm)
+        enc_norm = np.sqrt(enc_norm.cpu())
         enc_norms.append(enc_norm)
 
         if total_norm > params.max_norm:
@@ -495,14 +496,14 @@ def trainepoch(epoch):
             train_label_costs.append(
                 params.lmbda * params.alpha * np.mean(label_costs))
             train_ppl.append(math.exp(cum_ppl / cum_n_words))
-            print('{0} ; epoch: {1}, total loss : {2} ; lmbda * alpha * (lbl loss) : {3}; lmbda * (1-alpha) * (expl loss) : {4} ; train ppl : {5}; accuracy train esnli : {6}'.format(stidx, epoch,
-                                                                                                                                                                                      round(train_all_losses[-1], 2), round(train_label_costs[-1], 2), round(train_expl_costs[-1], 2), round(train_ppl[-1], 2), round(100. * correct / (stidx + s1_batch.size(1)), 2)))
+            print('{0} ; epoch: {1}, total loss : {2} ; lmbda * alpha * (lbl loss) : {3}; lmbda * (1-alpha) * (expl loss) : {4} ; train ppl : {5}; accuracy train esnli : {6}'.format(
+                stidx, epoch, round(train_all_losses[-1], 2), round(train_label_costs[-1], 2), round(train_expl_costs[-1], 2), round(train_ppl[-1], 2), 100. * correct.item() / (stidx + s1_batch.size(1))))
             label_costs = []
             expl_costs = []
             all_losses = []
             cum_n_words = 0
             cum_ppl = 0
-    train_acc = round(100 * correct / len(s1), 2)
+    train_acc = 100 * correct.item() / len(s1)
     print(('results : epoch {0} ; mean accuracy train esnli : {1}'.format(
         epoch, train_acc)))
     return train_acc
@@ -590,7 +591,7 @@ def evaluate_dev(epoch):
     total_dev_points = len(s1)
 
     # accuracy
-    eval_acc = round(100 * correct / total_dev_points, 2)
+    eval_acc = 100 * correct.item() / total_dev_points
     print('togrep : results : epoch {0} ; mean accuracy {1} '.format(
         epoch, eval_acc))
 

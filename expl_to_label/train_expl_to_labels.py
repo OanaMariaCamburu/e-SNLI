@@ -290,7 +290,7 @@ def trainepoch(epoch):
             if p.requires_grad:
                 p.grad.data.div_(current_bs)  # divide by the actual batch size
                 total_norm += p.grad.data.norm() ** 2
-        total_norm = np.sqrt(total_norm)
+        total_norm = np.sqrt(total_norm.cpu())
         total_norms.append(total_norm)
 
         # encoder grads norm
@@ -299,7 +299,7 @@ def trainepoch(epoch):
             if p.requires_grad:
                 # p.grad.data.div_(current_bs)  # divide by the actual batch size
                 enc_norm += p.grad.data.norm() ** 2
-        enc_norm = np.sqrt(enc_norm)
+        enc_norm = np.sqrt(enc_norm.cpu())
         enc_norms.append(enc_norm)
 
         if total_norm > params.max_norm:
@@ -317,10 +317,10 @@ def trainepoch(epoch):
         if len(label_costs) == params.avg_every:
             train_label_costs.append(np.mean(label_costs))
             print('{0} ; epoch: {1}, total loss : {2} ; accuracy train expl_to_labels : {3}'.format(
-                stidx, epoch, round(train_label_costs[-1], 2), round(100. * correct / (stidx + expl_batch.size(1)), 2)))
+                stidx, epoch, round(train_label_costs[-1], 2), 100. * correct.item() / (stidx + expl_batch.size(1))))
             label_costs = []
 
-    train_acc = round(100 * correct / len(expl_1), 2)
+    train_acc = 100 * correct.item() / len(expl_1)
     print(('results : epoch {0} ; mean accuracy train esnli : {1}'.format(
         epoch, train_acc)))
     return train_acc
@@ -372,7 +372,7 @@ def evaluate_dev(epoch):
     total_dev_points = 3 * len(expl_1)
 
     # accuracy
-    eval_acc = round(100 * correct / total_dev_points, 2)
+    eval_acc = 100 * correct.item() / total_dev_points
     print('togrep : results : epoch {0} ; mean accuracy {1} '.format(
         epoch, eval_acc))
 
@@ -530,7 +530,7 @@ def evaluate_test():
     total_test_points = 3 * len(expl_1)
 
     # accuracy
-    eval_acc = round(100 * correct / total_test_points, 2)
+    eval_acc = 100 * correct.item() / total_test_points
     print('test accuracy ', eval_acc)
 
 

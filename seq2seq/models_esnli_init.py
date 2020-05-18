@@ -216,17 +216,18 @@ class BLSTMEncoder(nn.Module):
 
     def is_cuda(self):
         # either all weights are on cpu or they are on gpu
-        return 'cuda' in str(type(self.enc_lstm.bias_hh_l0.data))
+        return self.enc_lstm.bias_hh_l0.data.is_cuda
 
     def forward(self, sent_tuple):
         # sent_len: [max_len, ..., min_len] (bsize)
         # sent: Variable(seqlen x bsize x worddim)
+
         sent, sent_len = sent_tuple
 
         # Sort by length (keep idx)
-        sent_len, idx_sort = np.sort(sent_len)[::-1], np.argsort(-sent_len)
+        sent_len, idx_sort = np.sort(
+            sent_len)[::-1].copy(), np.argsort(-sent_len)
         idx_unsort = np.argsort(idx_sort)
-
         idx_sort = torch.from_numpy(idx_sort).cuda() if self.is_cuda() \
             else torch.from_numpy(idx_sort)
         sent = sent.index_select(1, Variable(idx_sort))
@@ -247,7 +248,7 @@ class BLSTMEncoder(nn.Module):
         sent_output = sent_output.index_select(1, Variable(idx_unsort))
         if self.relu_before_pool:
             sent_output = nn.ReLU()(sent_output)
-        sent_len = sent_len[idx_unsort]
+        sent_len = sent_len[idx_unsort.cpu()]
 
         # Pooling
         if self.pool_type == "mean":
@@ -395,8 +396,7 @@ class BLSTMEncoder(nn.Module):
 
         embeddings = []
         for stidx in range(0, len(sentences), bsize):
-            batch = Variable(self.get_batch(
-                sentences[stidx:stidx + bsize]), volatile=True)
+            batch = self.get_batch(sentences[stidx:stidx + bsize])
             if self.is_cuda():
                 batch = batch.cuda()
             batch = self.forward(
@@ -426,7 +426,7 @@ class BLSTMEncoder(nn.Module):
             import warnings
             warnings.warn('No words in "{0}" have glove vectors. Replacing \
 						   by "<s> </s>"..'.format(sent))
-        batch = Variable(self.get_batch(sent), volatile=True)
+        batch = self.get_batch(sent)
 
         if self.is_cuda():
             batch = batch.cuda()

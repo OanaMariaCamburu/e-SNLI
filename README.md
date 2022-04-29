@@ -1,7 +1,7 @@
 # News
 
 **`!`** Check out our e-SNLI-VE, a new dataset of natural language explanations for vision-language understanding, and our e-ViL benchmark for evaluating natural language explanations: [e-ViL: A Dataset and Benchmark for Natural Language Explanations in
-Vision-Language Tasks](https://openaccess.thecvf.com/content/ICCV2021/papers/Kayser_E-ViL_A_Dataset_and_Benchmark_for_Natural_Language_Explanations_in_ICCV_2021_paper.pdf) accepted at ICCL, 2021.
+Vision-Language Tasks](https://openaccess.thecvf.com/content/ICCV2021/papers/Kayser_E-ViL_A_Dataset_and_Benchmark_for_Natural_Language_Explanations_in_ICCV_2021_paper.pdf) accepted at ICCV, 2021.
 
 **`!`** New work on e-SNLI: [Make Up Your Mind! Adversarial Generation of Inconsistent Natural Language Explanations](https://arxiv.org/abs/1910.03065). Accepted as a short paper at ACL, 2020.
 

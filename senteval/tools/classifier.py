@@ -44,8 +44,8 @@ class PyTorchClassifier(object):
             devX, devy = validation_data
         else:
             permutation = np.random.permutation(len(X))
-            trainidx = permutation[int(validation_split*len(X)):]
-            devidx = permutation[0:int(validation_split*len(X))]
+            trainidx = permutation[int(validation_split * len(X)):]
+            devidx = permutation[0:int(validation_split * len(X))]
             trainX, trainy = X[trainidx], y[trainidx]
             devX, devy = X[devidx], y[devidx]
 
@@ -105,7 +105,7 @@ class PyTorchClassifier(object):
                 output = self.model(Xbatch)
                 # loss
                 loss = self.loss_fn(output, ybatch)
-                all_costs.append(loss.data[0])
+                all_costs.append(loss.item())
                 # backward
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -128,7 +128,7 @@ class PyTorchClassifier(object):
             output = self.model(Xbatch)
             pred = output.data.max(1)[1]
             correct += pred.long().eq(ybatch.data.long()).sum()
-        accuracy = 1.0*correct / len(devX)
+        accuracy = 1.0 * correct / len(devX)
         return accuracy
 
     def predict(self, devX):
@@ -161,6 +161,7 @@ class PyTorchClassifier(object):
 MLP with Pytorch (nhid=0 --> Logistic Regression)
 """
 
+
 class MLP(PyTorchClassifier):
     def __init__(self, params, inputdim, nclasses, l2reg=0., batch_size=64,
                  seed=1111, cudaEfficient=False):
@@ -187,7 +188,7 @@ class MLP(PyTorchClassifier):
         if params["nhid"] == 0:
             self.model = nn.Sequential(
                 nn.Linear(self.inputdim, self.nclasses),
-                ).cuda()
+            ).cuda()
         else:
             '''
             self.model = nn.Sequential(
@@ -206,7 +207,7 @@ class MLP(PyTorchClassifier):
                 nn.Tanh(),
                 nn.Dropout(p=self.dropout),
                 nn.Linear(params["nhid"], self.nclasses),
-                ).cuda()
+            ).cuda()
 
         self.loss_fn = nn.CrossEntropyLoss().cuda()
         self.loss_fn.size_average = False

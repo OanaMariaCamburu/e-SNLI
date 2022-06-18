@@ -8,7 +8,7 @@
 '''
 Binary classifier and corresponding datasets : MR, CR, SUBJ, MPQA
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import io
 import os

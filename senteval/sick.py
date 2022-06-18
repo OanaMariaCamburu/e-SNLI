@@ -8,7 +8,7 @@
 '''
 SICK Relatedness and Entailment
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import os
 import io
@@ -28,15 +28,16 @@ class SICKRelatednessEval(object):
         self.seed = seed
         train = self.loadFile(os.path.join(task_path, 'SICK_train.txt'))
         dev = self.loadFile(os.path.join(task_path, 'SICK_trial.txt'))
-        test = self.loadFile(os.path.join(task_path, 'SICK_test_annotated.txt'))
+        test = self.loadFile(os.path.join(
+            task_path, 'SICK_test_annotated.txt'))
         self.sick_data = {'train': train, 'dev': dev, 'test': test}
 
     def do_prepare(self, params, prepare):
         samples = self.sick_data['train']['X_A'] + \
-                  self.sick_data['train']['X_B'] + \
-                  self.sick_data['dev']['X_A'] + \
-                  self.sick_data['dev']['X_B'] + \
-                  self.sick_data['test']['X_A'] + self.sick_data['test']['X_B']
+            self.sick_data['train']['X_B'] + \
+            self.sick_data['dev']['X_A'] + \
+            self.sick_data['dev']['X_B'] + \
+            self.sick_data['test']['X_A'] + self.sick_data['test']['X_B']
         return prepare(params, samples)
 
     def loadFile(self, fpath):
@@ -77,7 +78,8 @@ class SICKRelatednessEval(object):
                     batch = self.sick_data[key][txt_type][ii:ii + bsize]
                     embeddings = batcher(params, batch)
                     sick_embed[key][txt_type].append(embeddings)
-                sick_embed[key][txt_type] = np.vstack(sick_embed[key][txt_type])
+                sick_embed[key][txt_type] = np.vstack(
+                    sick_embed[key][txt_type])
             sick_embed[key]['y'] = np.array(self.sick_data[key]['y'])
             logging.info('Computed {0} embeddings'.format(key))
 
@@ -125,9 +127,9 @@ class SICKRelatednessEval(object):
         Y = np.zeros((len(labels), nclass)).astype('float32')
         for j, y in enumerate(labels):
             for i in range(nclass):
-                if i+1 == np.floor(y) + 1:
+                if i + 1 == np.floor(y) + 1:
                     Y[j, i] = y - np.floor(y)
-                if i+1 == np.floor(y):
+                if i + 1 == np.floor(y):
                     Y[j, i] = np.floor(y) - y + 1
         return Y
 
@@ -138,7 +140,8 @@ class SICKEntailmentEval(SICKRelatednessEval):
         self.seed = seed
         train = self.loadFile(os.path.join(task_path, 'SICK_train.txt'))
         dev = self.loadFile(os.path.join(task_path, 'SICK_trial.txt'))
-        test = self.loadFile(os.path.join(task_path, 'SICK_test_annotated.txt'))
+        test = self.loadFile(os.path.join(
+            task_path, 'SICK_test_annotated.txt'))
         self.sick_data = {'train': train, 'dev': dev, 'test': test}
 
     def loadFile(self, fpath):
@@ -179,7 +182,8 @@ class SICKEntailmentEval(SICKRelatednessEval):
                     batch = self.sick_data[key][txt_type][ii:ii + bsize]
                     embeddings = batcher(params, batch)
                     sick_embed[key][txt_type].append(embeddings)
-                sick_embed[key][txt_type] = np.vstack(sick_embed[key][txt_type])
+                sick_embed[key][txt_type] = np.vstack(
+                    sick_embed[key][txt_type])
             logging.info('Computed {0} embeddings'.format(key))
 
         # Train

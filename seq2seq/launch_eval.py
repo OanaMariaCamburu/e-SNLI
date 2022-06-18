@@ -19,10 +19,14 @@ parser = argparse.ArgumentParser(description='eval')
 parser.add_argument("--directory", type=str, default='')
 parser.add_argument("--state_path", type=str, default='')
 parser.add_argument("--eval_batch_size", type=int, default=32)
-parser.add_argument("--train_snli_classif", action='store_true', dest='train_snli_classif')
-parser.add_argument("--use_prototype_senteval", action='store_true', dest='use_prototype_senteval')
-parser.add_argument("--do_image_caption", action='store_true', dest='do_image_caption')
-parser.add_argument("--cudnn_nondeterministic", action='store_false', dest='cudnn_deterministic')
+parser.add_argument("--train_snli_classif",
+                    action='store_true', dest='train_snli_classif')
+parser.add_argument("--use_prototype_senteval",
+                    action='store_true', dest='use_prototype_senteval')
+parser.add_argument("--do_image_caption",
+                    action='store_true', dest='do_image_caption')
+parser.add_argument("--cudnn_nondeterministic",
+                    action='store_false', dest='cudnn_deterministic')
 
 
 eval_params = parser.parse_args()
@@ -74,9 +78,6 @@ eval_sent_embeddings_labels_in_expl.eval_all(esnli_net, criterion_expl, params)
 
 txt_file = 'DONE_eval.txt'
 file = os.path.join(params.current_run_dir, txt_file)
-f = open(file,'w')
+f = open(file, 'w')
 f.write("DONE")
 f.close()
-
-
-

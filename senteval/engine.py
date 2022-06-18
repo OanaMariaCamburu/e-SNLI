@@ -10,7 +10,7 @@
 Generic sentence evaluation scripts wrapper
 
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 from senteval import utils
 from senteval.binary import CREval, MREval, MPQAEval, SUBJEval
@@ -57,7 +57,8 @@ class SE(object):
             return self.results
 
         tpath = self.params.task_path
-        assert name in self.list_tasks, str(name) + ' not in ' + str(self.list_tasks)
+        assert name in self.list_tasks, str(
+            name) + ' not in ' + str(self.list_tasks)
         if name == 'CR':
             self.evaluation = CREval(tpath + '/CR', seed=self.params.seed)
         elif name == 'MR':
@@ -67,26 +68,33 @@ class SE(object):
         elif name == 'SUBJ':
             self.evaluation = SUBJEval(tpath + '/SUBJ', seed=self.params.seed)
         elif name == 'SST2':
-            self.evaluation = SSTEval(tpath + '/SST/binary', nclasses=2, seed=self.params.seed)
+            self.evaluation = SSTEval(
+                tpath + '/SST/binary', nclasses=2, seed=self.params.seed)
         elif name == 'SST5':
-            self.evaluation = SSTEval(tpath + '/SST/fine', nclasses=5, seed=self.params.seed)
+            self.evaluation = SSTEval(
+                tpath + '/SST/fine', nclasses=5, seed=self.params.seed)
         elif name == 'TREC':
             self.evaluation = TRECEval(tpath + '/TREC', seed=self.params.seed)
         elif name == 'MRPC':
             self.evaluation = MRPCEval(tpath + '/MRPC', seed=self.params.seed)
         elif name == 'SICKRelatedness':
-            self.evaluation = SICKRelatednessEval(tpath + '/SICK', seed=self.params.seed)
+            self.evaluation = SICKRelatednessEval(
+                tpath + '/SICK', seed=self.params.seed)
         elif name == 'STSBenchmark':
-            self.evaluation = STSBenchmarkEval(tpath + '/STS/STSBenchmark', seed=self.params.seed)
+            self.evaluation = STSBenchmarkEval(
+                tpath + '/STS/STSBenchmark', seed=self.params.seed)
         elif name == 'SICKEntailment':
-            self.evaluation = SICKEntailmentEval(tpath + '/SICK', seed=self.params.seed)
+            self.evaluation = SICKEntailmentEval(
+                tpath + '/SICK', seed=self.params.seed)
         elif name == 'SNLI':
             self.evaluation = SNLIEval(tpath + '/SNLI', seed=self.params.seed)
         elif name in ['STS12', 'STS13', 'STS14', 'STS15', 'STS16']:
             fpath = name + '-en-test'
-            self.evaluation = eval(name + 'Eval')(tpath + '/STS/' + fpath, seed=self.params.seed)
+            self.evaluation = eval(
+                name + 'Eval')(tpath + '/STS/' + fpath, seed=self.params.seed)
         elif name == 'ImageCaptionRetrieval':
-            self.evaluation = ImageCaptionRetrievalEval(tpath + '/COCO', seed=self.params.seed)
+            self.evaluation = ImageCaptionRetrievalEval(
+                tpath + '/COCO', seed=self.params.seed)
 
         self.params.current_task = name
         self.evaluation.do_prepare(self.params, self.prepare)

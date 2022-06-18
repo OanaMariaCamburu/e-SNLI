@@ -8,7 +8,7 @@
 '''
 MRPC : Microsoft Research Paraphrase (detection) Corpus
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import os
 import logging
@@ -25,16 +25,16 @@ class MRPCEval(object):
         logging.info('***** Transfer task : MRPC *****\n\n')
         self.seed = seed
         train = self.loadFile(os.path.join(task_path,
-                              'msr_paraphrase_train.txt'))
+                                           'msr_paraphrase_train.txt'))
         test = self.loadFile(os.path.join(task_path,
-                             'msr_paraphrase_test.txt'))
+                                          'msr_paraphrase_test.txt'))
         self.mrpc_data = {'train': train, 'test': test}
 
     def do_prepare(self, params, prepare):
         # TODO : Should we separate samples in "train, test"?
         samples = self.mrpc_data['train']['X_A'] + \
-                  self.mrpc_data['train']['X_B'] + \
-                  self.mrpc_data['test']['X_A'] + self.mrpc_data['test']['X_B']
+            self.mrpc_data['train']['X_B'] + \
+            self.mrpc_data['test']['X_A'] + self.mrpc_data['test']['X_B']
         return prepare(params, samples)
 
     def loadFile(self, fpath):
@@ -73,7 +73,8 @@ class MRPCEval(object):
                     batch = text_data[txt_type][ii:ii + params.batch_size]
                     embeddings = batcher(params, batch)
                     mrpc_embed[key][txt_type].append(embeddings)
-                mrpc_embed[key][txt_type] = np.vstack(mrpc_embed[key][txt_type])
+                mrpc_embed[key][txt_type] = np.vstack(
+                    mrpc_embed[key][txt_type])
             mrpc_embed[key]['y'] = np.array(text_data['y'])
             logging.info('Computed {0} embeddings'.format(key))
 
@@ -97,7 +98,7 @@ class MRPCEval(object):
                               test={'X': testF, 'y': testY}, config=config)
 
         devacc, testacc, yhat = clf.run()
-        testf1 = round(100*f1_score(testY, yhat), 2)
+        testf1 = round(100 * f1_score(testY, yhat), 2)
         logging.debug('Dev acc : {0} Test acc {1}; Test F1 {2} for MRPC.\n'
                       .format(devacc, testacc, testf1))
         return {'devacc': devacc, 'acc': testacc, 'f1': testf1,

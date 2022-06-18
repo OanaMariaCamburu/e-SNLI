@@ -46,7 +46,7 @@ class RelatednessPytorch(object):
         self.model = nn.Sequential(
             nn.Linear(self.inputdim, self.nclasses),
             nn.Softmax(),
-            )
+        )
         self.loss_fn = nn.MSELoss()
 
         if torch.cuda.is_available():
@@ -107,13 +107,14 @@ class RelatednessPytorch(object):
             all_costs = []
             for i in range(0, len(X), self.batch_size):
                 # forward
-                idx = torch.from_numpy(permutation[i:i + self.batch_size]).long().cuda()
+                idx = torch.from_numpy(
+                    permutation[i:i + self.batch_size]).long().cuda()
                 Xbatch = Variable(X.index_select(0, idx))
                 ybatch = Variable(y.index_select(0, idx))
                 output = self.model(Xbatch)
                 # loss
                 loss = self.loss_fn(output, ybatch)
-                all_costs.append(loss.data[0])
+                all_costs.append(loss.item())
                 # backward
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -130,5 +131,5 @@ class RelatednessPytorch(object):
                 probas = self.model(Xbatch).data.cpu().numpy()
             else:
                 probas = np.concatenate((probas,
-                    self.model(Xbatch).data.cpu().numpy()), axis=0)
+                                         self.model(Xbatch).data.cpu().numpy()), axis=0)
         return probas

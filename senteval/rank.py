@@ -8,14 +8,14 @@
 '''
 Image-Caption Retrieval with COCO dataset
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import os
 import logging
 import numpy as np
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -33,8 +33,8 @@ class ImageCaptionRetrievalEval(object):
 
     def do_prepare(self, params, prepare):
         samples = self.coco_data['train']['sent'] + \
-                  self.coco_data['dev']['sent'] + \
-                  self.coco_data['test']['sent']
+            self.coco_data['dev']['sent'] + \
+            self.coco_data['test']['sent']
         prepare(params, samples)
 
     def loadFile(self, fpath):
@@ -48,7 +48,7 @@ class ImageCaptionRetrievalEval(object):
 
             for imgkey in range(len(cocodata['features'])):
                 assert len(cocodata['image_to_caption_ids'][imgkey]) >= 5, \
-                       cocodata['image_to_caption_ids'][imgkey]
+                    cocodata['image_to_caption_ids'][imgkey]
                 for captkey in cocodata['image_to_caption_ids'][imgkey][0:5]:
                     sent = cocodata['captions'][captkey]['cleaned_caption']
                     sent += ' .'  # add punctuation to end of sentence in COCO
@@ -69,7 +69,8 @@ class ImageCaptionRetrievalEval(object):
             logging.info('Computing embedding for {0}'.format(key))
             # Sort to reduce padding
             self.coco_data[key]['sent'] = np.array(self.coco_data[key]['sent'])
-            self.coco_data[key]['sent'], idx_sort = np.sort(self.coco_data[key]['sent']), np.argsort(self.coco_data[key]['sent'])
+            self.coco_data[key]['sent'], idx_sort = np.sort(
+                self.coco_data[key]['sent']), np.argsort(self.coco_data[key]['sent'])
             idx_unsort = np.argsort(idx_sort)
 
             coco_embed[key]['X'] = []
@@ -78,8 +79,10 @@ class ImageCaptionRetrievalEval(object):
                 batch = self.coco_data[key]['sent'][ii:ii + params.batch_size]
                 embeddings = batcher(params, batch)
                 coco_embed[key]['sentfeat'].append(embeddings)
-            coco_embed[key]['sentfeat'] = np.vstack(coco_embed[key]['sentfeat'])[idx_unsort]
-            coco_embed[key]['imgfeat'] = np.array(self.coco_data[key]['imgfeat'])
+            coco_embed[key]['sentfeat'] = np.vstack(
+                coco_embed[key]['sentfeat'])[idx_unsort]
+            coco_embed[key]['imgfeat'] = np.array(
+                self.coco_data[key]['imgfeat'])
             logging.info('Computed {0} embeddings'.format(key))
 
         config = {'seed': self.seed, 'projdim': 1000, 'margin': 0.2}

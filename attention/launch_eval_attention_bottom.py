@@ -29,28 +29,33 @@ parser.add_argument("--state_path_expl_to_labels", type=str, default='')
 eval_params = parser.parse_args()
 
 if not os.path.exists("copy_models_attention_bottom_separate.py"):
-	shutil.copy(os.path.join(eval_params.directory, "models_attention_bottom_separate.py"), "copy_models_attention_bottom_separate.py")
+    shutil.copy(os.path.join(eval_params.directory, "models_attention_bottom_separate.py"),
+                "copy_models_attention_bottom_separate.py")
 from copy_models_attention_bottom_separate import eSNLIAttention
-	
 
-streamtologger.redirect(target=os.path.join(eval_params.directory, time.strftime("%d:%m") + "_" + time.strftime("%H:%M:%S") + 'log_eval.txt'))
+
+streamtologger.redirect(target=os.path.join(eval_params.directory, time.strftime(
+    "%d:%m") + "_" + time.strftime("%H:%M:%S") + 'log_eval.txt'))
 
 
 # attention model
-state_att = torch.load(os.path.join(eval_params.directory, eval_params.state_path))
+state_att = torch.load(os.path.join(
+    eval_params.directory, eval_params.state_path))
 model_config_att = state_att['config_model']
 model_state_dict = state_att['model_state']
 att_net = eSNLIAttention(model_config_att).cuda()
 att_net.load_state_dict(model_state_dict)
 params = state_att['params']
-assert params.separate_att == eval_params.separate_att, "params.separate_att " + str(params.separate_att)
+assert params.separate_att == eval_params.separate_att, "params.separate_att " + \
+    str(params.separate_att)
 params.word_vec_expl = model_config_att['word_vec']
 params.current_run_dir = eval_params.directory
 params.eval_batch_size = eval_params.eval_batch_size
-params.eval_just_snli  = eval_params.eval_just_snli
+params.eval_just_snli = eval_params.eval_just_snli
 
 # expl_to_label model
-state_expl_to_labels = torch.load(os.path.join(eval_params.directory_expl_to_labels, eval_params.state_path_expl_to_labels))
+state_expl_to_labels = torch.load(os.path.join(
+    eval_params.directory_expl_to_labels, eval_params.state_path_expl_to_labels))
 model_config_expl_to_label = state_expl_to_labels['config_model']
 model_state_expl_to_label = state_expl_to_labels['model_state']
 expl_net = ExplToLabelsNet(model_config_expl_to_label).cuda()
@@ -70,11 +75,8 @@ eval_all(att_net, expl_net, criterion_expl, params)
 
 txt_file = 'DONE_eval_att.txt'
 file = os.path.join(params.current_run_dir, txt_file)
-f = open(file,'w')
+f = open(file, 'w')
 f.write("DONE")
 f.close()
 
 os.remove("copy_models_attention_bottom_separate.py")
-
-
-

@@ -9,7 +9,6 @@
 TREC question-type classification
 '''
 
-from __future__ import absolute_import, division, unicode_literals
 
 import os
 import io

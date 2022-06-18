@@ -8,7 +8,7 @@
 '''
 SNLI - Entailment
 '''
-from __future__ import absolute_import, division, unicode_literals
+
 
 import codecs
 import os
@@ -43,15 +43,15 @@ class SNLIEval(object):
         # sort data (by s2 first) to reduce padding
         sorted_train = sorted(zip(train2, train1, trainlabels),
                               key=lambda z: (len(z[0]), len(z[1]), z[2]))
-        train2, train1, trainlabels = map(list, zip(*sorted_train))
+        train2, train1, trainlabels = list(map(list, list(zip(*sorted_train))))
 
         sorted_valid = sorted(zip(valid2, valid1, validlabels),
                               key=lambda z: (len(z[0]), len(z[1]), z[2]))
-        valid2, valid1, validlabels = map(list, zip(*sorted_valid))
+        valid2, valid1, validlabels = list(map(list, list(zip(*sorted_valid))))
 
         sorted_test = sorted(zip(test2, test1, testlabels),
                              key=lambda z: (len(z[0]), len(z[1]), z[2]))
-        test2, test1, testlabels = map(list, zip(*sorted_test))
+        test2, test1, testlabels = list(map(list, list(zip(*sorted_test))))
 
         self.samples = train1 + train2 + valid1 + valid2 + test1 + test2
         self.data = {'train': (train1, train2, trainlabels),
@@ -69,7 +69,7 @@ class SNLIEval(object):
 
     def run(self, params, batcher):
         self.X, self.y = {}, {}
-        dico_label = {'entailment': 0,  'neutral': 1, 'contradiction': 2}
+        dico_label = {'entailment': 0, 'neutral': 1, 'contradiction': 2}
         for key in self.data:
             if key not in self.X:
                 self.X[key] = []
@@ -88,7 +88,7 @@ class SNLIEval(object):
                     enc2 = batcher(params, batch2)
                     enc_input.append(np.hstack((enc1, enc2, enc1 * enc2,
                                                 np.abs(enc1 - enc2))))
-                if (ii*params.batch_size) % (20000*params.batch_size) == 0:
+                if (ii * params.batch_size) % (20000 * params.batch_size) == 0:
                     logging.info("PROGRESS (encoding): %.2f%%" %
                                  (100 * ii / n_labels))
             self.X[key] = np.vstack(enc_input)

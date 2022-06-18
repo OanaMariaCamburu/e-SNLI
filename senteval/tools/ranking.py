@@ -27,11 +27,11 @@ class COCOProjNet(nn.Module):
         self.sentdim = config['sentdim']
         self.projdim = config['projdim']
         self.imgproj = nn.Sequential(
-                        nn.Linear(self.imgdim, self.projdim),
-                        )
+            nn.Linear(self.imgdim, self.projdim),
+        )
         self.sentproj = nn.Sequential(
-                        nn.Linear(self.sentdim, self.projdim),
-                        )
+            nn.Linear(self.sentdim, self.projdim),
+        )
 
     def forward(self, img, sent, imgc, sentc):
         # imgc : (bsize, ncontrast, imgdim)
@@ -46,38 +46,51 @@ class COCOProjNet(nn.Module):
         sentc = sentc.view(-1, self.sentdim)
 
         imgproj = self.imgproj(img)
-        imgproj = imgproj / torch.sqrt(torch.pow(imgproj, 2).sum(1, keepdim=True)).expand_as(imgproj)
+        imgproj = imgproj / \
+            torch.sqrt(torch.pow(imgproj, 2).sum(
+                1, keepdim=True)).expand_as(imgproj)
         imgcproj = self.imgproj(imgc)
-        imgcproj = imgcproj / torch.sqrt(torch.pow(imgcproj, 2).sum(1, keepdim=True)).expand_as(imgcproj)
+        imgcproj = imgcproj / \
+            torch.sqrt(torch.pow(imgcproj, 2).sum(
+                1, keepdim=True)).expand_as(imgcproj)
         sentproj = self.sentproj(sent)
-        sentproj = sentproj / torch.sqrt(torch.pow(sentproj, 2).sum(1, keepdim=True)).expand_as(sentproj)
+        sentproj = sentproj / \
+            torch.sqrt(torch.pow(sentproj, 2).sum(
+                1, keepdim=True)).expand_as(sentproj)
         sentcproj = self.sentproj(sentc)
-        sentcproj = sentcproj / torch.sqrt(torch.pow(sentcproj, 2).sum(1, keepdim=True)).expand_as(sentcproj)
+        sentcproj = sentcproj / \
+            torch.sqrt(torch.pow(sentcproj, 2).sum(
+                1, keepdim=True)).expand_as(sentcproj)
         # (bsize*ncontrast, projdim)
 
-        anchor1 = torch.sum((imgproj*sentproj), 1)
-        anchor2 = torch.sum((sentproj*imgproj), 1)
-        img_sentc = torch.sum((imgproj*sentcproj), 1)
-        sent_imgc = torch.sum((sentproj*imgcproj), 1)
+        anchor1 = torch.sum((imgproj * sentproj), 1)
+        anchor2 = torch.sum((sentproj * imgproj), 1)
+        img_sentc = torch.sum((imgproj * sentcproj), 1)
+        sent_imgc = torch.sum((sentproj * imgcproj), 1)
 
         # (bsize*ncontrast)
         return anchor1, anchor2, img_sentc, sent_imgc
 
     def proj_sentence(self, sent):
         output = self.sentproj(sent)
-        output = output / torch.sqrt(torch.pow(output, 2).sum(1, keepdim=True)).expand_as(output)
-        return output # (bsize, projdim)
+        output = output / \
+            torch.sqrt(torch.pow(output, 2).sum(
+                1, keepdim=True)).expand_as(output)
+        return output  # (bsize, projdim)
 
     def proj_image(self, img):
         output = self.imgproj(img)
-        output = output / torch.sqrt(torch.pow(output, 2).sum(1, keepdim=True)).expand_as(output)
-        return output # (bsize, projdim)
+        output = output / \
+            torch.sqrt(torch.pow(output, 2).sum(
+                1, keepdim=True)).expand_as(output)
+        return output  # (bsize, projdim)
 
 
 class PairwiseRankingLoss(nn.Module):
     """
     Pairwise ranking loss
     """
+
     def __init__(self, margin):
         super(PairwiseRankingLoss, self).__init__()
         self.margin = margin
@@ -115,7 +128,7 @@ class ImageSentenceRankingPytorch(object):
         self.maxepoch = 20
         self.early_stop = True
 
-        config_model = {'imgdim': self.imgdim,'sentdim': self.sentdim,
+        config_model = {'imgdim': self.imgdim, 'sentdim': self.sentdim,
                         'projdim': self.projdim}
         self.model = COCOProjNet(config_model).cuda()
 
@@ -158,8 +171,8 @@ class ImageSentenceRankingPytorch(object):
                        'dev': bestdevscore}
             score = 0
             for i in range(5):
-                devTxt_i = devTxt[i*5000:(i+1)*5000]
-                devImg_i = devImg[i*5000:(i+1)*5000]
+                devTxt_i = devTxt[i * 5000:(i + 1) * 5000]
+                devImg_i = devImg[i * 5000:(i + 1) * 5000]
                 # Compute dev ranks img2txt
                 r1_i2t, r5_i2t, r10_i2t, medr_i2t = self.i2t(devImg_i,
                                                              devTxt_i)
@@ -182,11 +195,11 @@ class ImageSentenceRankingPytorch(object):
                           r1_t2i + r5_t2i + r10_t2i) / 5
 
             logging.info("Dev mean Text to Image: {0}, {1}, {2}, {3}".format(
-                        results['t2i']['r1'], results['t2i']['r5'],
-                        results['t2i']['r10'], results['t2i']['medr']))
+                results['t2i']['r1'], results['t2i']['r5'],
+                results['t2i']['r10'], results['t2i']['medr']))
             logging.info("Dev mean Image to text: {0}, {1}, {2}, {3}".format(
-                        results['i2t']['r1'], results['i2t']['r5'],
-                        results['i2t']['r10'], results['i2t']['medr']))
+                results['i2t']['r1'], results['i2t']['r5'],
+                results['i2t']['r10'], results['i2t']['medr']))
 
             # early stop on Pearson
             if score > bestdevscore:
@@ -203,8 +216,8 @@ class ImageSentenceRankingPytorch(object):
                    't2i': {'r1': 0, 'r5': 0, 'r10': 0, 'medr': 0},
                    'dev': bestdevscore}
         for i in range(5):
-            testTxt_i = testTxt[i*5000:(i+1)*5000]
-            testImg_i = testImg[i*5000:(i+1)*5000]
+            testTxt_i = testTxt[i * 5000:(i + 1) * 5000]
+            testImg_i = testImg[i * 5000:(i + 1) * 5000]
             # Compute test ranks img2txt
             r1_i2t, r5_i2t, r10_i2t, medr_i2t = self.i2t(testImg_i, testTxt_i)
             results['i2t']['r1'] += r1_i2t / 5
@@ -219,9 +232,9 @@ class ImageSentenceRankingPytorch(object):
             results['t2i']['medr'] += medr_t2i / 5
 
         return bestdevscore, results['i2t']['r1'], results['i2t']['r5'], \
-                             results['i2t']['r10'], results['i2t']['medr'], \
-                             results['t2i']['r1'], results['t2i']['r5'], \
-                             results['t2i']['r10'], results['t2i']['medr']
+            results['i2t']['r10'], results['i2t']['medr'], \
+            results['t2i']['r1'], results['t2i']['r5'], \
+            results['t2i']['r10'], results['t2i']['medr']
 
     def trainepoch(self, trainTxt, trainImg, devTxt, devImg, nepoches=1):
         self.model.train()
@@ -230,7 +243,7 @@ class ImageSentenceRankingPytorch(object):
             all_costs = []
             for i in range(0, len(trainTxt), self.batch_size):
                 # forward
-                if i % (self.batch_size*500) == 0 and i > 0:
+                if i % (self.batch_size * 500) == 0 and i > 0:
                     logging.info('samples : {0}'.format(i))
                     r1_i2t, r5_i2t, r10_i2t, medr_i2t = self.i2t(devImg,
                                                                  devTxt)
@@ -247,10 +260,10 @@ class ImageSentenceRankingPytorch(object):
 
                 idximgc = np.random.choice(permutation[:i] +
                                            permutation[i + self.batch_size:],
-                                           self.ncontrast*idx.size(0))
+                                           self.ncontrast * idx.size(0))
                 idxsentc = np.random.choice(permutation[:i] +
                                             permutation[i + self.batch_size:],
-                                            self.ncontrast*idx.size(0))
+                                            self.ncontrast * idx.size(0))
                 idximgc = torch.LongTensor(idximgc)
                 idxsentc = torch.LongTensor(idxsentc)
                 # Get indexes for contrastive images and sentences
@@ -263,7 +276,7 @@ class ImageSentenceRankingPytorch(object):
                     imgbatch, sentbatch, imgcbatch, sentcbatch)
                 # loss
                 loss = self.loss_fn(anchor1, anchor2, img_sentc, sent_imgc)
-                all_costs.append(loss.data[0])
+                all_costs.append(loss.item())
                 # backward
                 self.optimizer.zero_grad()
                 loss.backward()
@@ -294,7 +307,7 @@ class ImageSentenceRankingPytorch(object):
         for index in range(npts):
 
             # Get query captions
-            queries = sent_embed[5*index: 5*index + 5]
+            queries = sent_embed[5 * index: 5 * index + 5]
 
             # Compute scores
             scores = torch.mm(queries, ims.transpose(0, 1)).cpu().numpy()
@@ -327,7 +340,7 @@ class ImageSentenceRankingPytorch(object):
 
         npts = int(img_embed.size(0) / 5)
         index_list = []
-        
+
         ranks = np.zeros(npts)
         for index in range(npts):
 
@@ -343,7 +356,7 @@ class ImageSentenceRankingPytorch(object):
 
             # Score
             rank = 1e20
-            for i in range(5*index, 5*index + 5, 1):
+            for i in range(5 * index, 5 * index + 5, 1):
                 tmp = np.where(inds == i)[0][0]
                 if tmp < rank:
                     rank = tmp

@@ -3,14 +3,15 @@ import numpy as np
 import torch
 import shutil
 import sys
-#sys.path.append("..")
+# sys.path.append("..")
 sys.path.append("/raid/data/oanuru/infer_sent_esnli/utils")
 
 from mutils import makedirs
 
 
-NLI_DIC_LABELS = {'entailment': 2,  'neutral': 1, 'contradiction': 0}
-NLI_LABELS_TO_NLI ={'entailment': 'entailment',  'neutral': 'neutral', 'contradiction': 'contradiction'}
+NLI_DIC_LABELS = {'entailment': 2, 'neutral': 1, 'contradiction': 0}
+NLI_LABELS_TO_NLI = {'entailment': 'entailment',
+                     'neutral': 'neutral', 'contradiction': 'contradiction'}
 
 
 def get_dev_test_original_expl(data_path, data_type):
@@ -23,17 +24,20 @@ def get_dev_test_original_expl(data_path, data_type):
 
     expl_1['sent'] = [line.rstrip() for line in open(expl_1['path'], 'r')]
     expl_2['sent'] = [line.rstrip() for line in open(expl_2['path'], 'r')]
-    expl_3['sent'] = [line.rstrip() for line in open(expl_3['path'], 'r')]                         
+    expl_3['sent'] = [line.rstrip() for line in open(expl_3['path'], 'r')]
 
     assert len(expl_1['sent']) == len(expl_2['sent']) == len(expl_3['sent'])
-    print data_path, data_type, len(expl_1['sent'])
-   
-    data = {'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
+    print(data_path, data_type, len(expl_1['sent']))
+
+    data = {'expl_1': expl_1['sent'],
+            'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
     return data
 
 # batch  : list of sentences, where a sentences is a list of words
 # output : tuple (torch.FloatTensor(T, bs, 300), array_sentence_lengths)
+
+
 def get_batch(batch, word_vec):
     # sent in batch in decreasing order of lengths
     lengths = np.array([len(x) for x in batch])
@@ -55,20 +59,20 @@ def get_target_expl_batch(batch, word_index):
     for i in range(len(batch)):
         # for MultiNLI "explantion" length would be 3 because it contains <s> label </s>. We want to keep the label for backprop but not put the </s>
         if len(batch[i]) > 3:
-            for j in range(1, len(batch[i])): # exclude <s>
+            for j in range(1, len(batch[i])):  # exclude <s>
                 batch_indexes[j - 1, i] = word_index[batch[i][j]]
-        if len(batch[i]) == 3: # exclude <s> and </s>
+        if len(batch[i]) == 3:  # exclude <s> and </s>
             batch_indexes[0, i] = word_index[batch[i][1]]
 
-    return torch.from_numpy(batch_indexes).long(), lengths - 1 
+    return torch.from_numpy(batch_indexes).long(), lengths - 1
 
 
 # sentences : array of strings
-# output    : dictionary of all words + <s> + </s> + <p>   
+# output    : dictionary of all words + <s> + </s> + <p>
 def get_word_dict(sentences):
     # create vocab of words
     word_index = {}
-    word_index['<p>'] = 0 
+    word_index['<p>'] = 0
     word_index['</s>'] = 1
     word_index['<s>'] = 2
     word_index['<UNK>'] = 3
@@ -90,7 +94,8 @@ def get_glove(word_dict, glove_path):
             if word in word_dict:
                 word_vec[word] = np.array(list(map(float, vec.split())))
 
-    print('Found {0}(/{1}) words with glove vectors'.format(len(word_vec), len(word_dict)))
+    print(
+        ('Found {0}(/{1}) words with glove vectors'.format(len(word_vec), len(word_dict))))
     return word_vec
 
 
@@ -100,14 +105,13 @@ def words_in_glove(words, glove_path):
         for line in f:
             w, vec = line.split(' ', 1)
             if w in words:
-                print w + ' is in glove'
-
+                print(w + ' is in glove')
 
 
 def build_vocab(sentences, glove_path):
     word_dict = get_word_dict(sentences)
     word_vec = get_glove(word_dict, glove_path)
-    print('Vocab size : {0}'.format(len(word_vec)))
+    print(('Vocab size : {0}'.format(len(word_vec))))
     return word_vec
 
 
@@ -133,40 +137,45 @@ def get_train(data_path, preproc, min_freq, n_train):
 
     data_path_train = data_path
     if n_train != -1:
-        data_path_train = os.path.join(data_path, "train_" + str(n_train) + "_freq" + str(min_freq))
+        data_path_train = os.path.join(
+            data_path, "train_" + str(n_train) + "_freq" + str(min_freq))
         if os.path.exists(data_path_train):
             shutil.rmtree(data_path_train)
         # create subset of n_train data from train only
         makedirs(data_path_train)
         for file in ["s1.train", "s2.train", "UNK_freq_" + str(min_freq) + "_preproc1_expl_1_label.train", "labels.train"]:
-            copy_first_k_lines_txt(os.path.join(data_path, file), os.path.join(data_path_train, file), n_train)
+            copy_first_k_lines_txt(os.path.join(
+                data_path, file), os.path.join(data_path_train, file), n_train)
 
     s1, s2, target_label, expl_1 = {}, {}, {}, {}
 
     freq_prefix = ""
     if min_freq > 0:
         freq_prefix = "UNK_freq_" + str(min_freq) + "_"
-
-
-    data_type  = 'train'
+    data_type = 'train'
     s1, s2, target_label, target_label_expl, expl_1 = {}, {}, {}, {}, {}
     s1['path'] = os.path.join(data_path_train, 's1.' + data_type)
     s2['path'] = os.path.join(data_path_train, 's2.' + data_type)
-    expl_1['path'] = os.path.join(data_path_train, freq_prefix + preproc + 'expl_1_label.' + data_type)
+    expl_1['path'] = os.path.join(
+        data_path_train, freq_prefix + preproc + 'expl_1_label.' + data_type)
     target_label['path'] = os.path.join(data_path_train, 'labels.' + data_type)
 
     s1['sent'] = [line.rstrip() for line in open(s1['path'], 'r')]
     s2['sent'] = [line.rstrip() for line in open(s2['path'], 'r')]
     expl_1['sent'] = [line.rstrip() for line in open(expl_1['path'], 'r')]
-                  
-    target_label['data'] = np.array([NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
-    target_label_expl['data'] = [line.rstrip() for line in open(target_label['path'], 'r')]
 
-    assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(target_label_expl['data']) == len(expl_1['sent']), str(len(s1['sent'])) + " " + str(len(s2['sent'])) + " " + str(len(target_label['data'])) + " " + str(len(target_label_expl['data'])) + " " + str(len(expl_1['sent']))
-    print data_path, 'TRAIN ', len(s1['sent'])
+    target_label['data'] = np.array(
+        [NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
+    target_label_expl['data'] = [line.rstrip()
+                                 for line in open(target_label['path'], 'r')]
 
-    data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'label_expl': target_label_expl['data'], 'expl_1': expl_1['sent']}
-    
+    assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(target_label_expl['data']) == len(expl_1['sent']), str(len(
+        s1['sent'])) + " " + str(len(s2['sent'])) + " " + str(len(target_label['data'])) + " " + str(len(target_label_expl['data'])) + " " + str(len(expl_1['sent']))
+    print(data_path, 'TRAIN ', len(s1['sent']))
+
+    data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'],
+            'label_expl': target_label_expl['data'], 'expl_1': expl_1['sent']}
+
     return data
 
 
@@ -179,29 +188,34 @@ def get_dev_test_with_expl(data_path, data_type, preproc, min_freq):
     if min_freq > 0:
         freq_prefix = "UNK_freq_" + str(min_freq) + "_"
 
-
     s1['path'] = os.path.join(data_path, 's1.' + data_type)
     s2['path'] = os.path.join(data_path, 's2.' + data_type)
-    expl_1['path'] = os.path.join(data_path, freq_prefix + preproc + 'expl_1_label.' + data_type)
-    expl_2['path'] = os.path.join(data_path, freq_prefix + preproc + 'expl_2_label.' + data_type)
-    expl_3['path'] = os.path.join(data_path, freq_prefix + preproc + 'expl_3_label.' + data_type)
+    expl_1['path'] = os.path.join(
+        data_path, freq_prefix + preproc + 'expl_1_label.' + data_type)
+    expl_2['path'] = os.path.join(
+        data_path, freq_prefix + preproc + 'expl_2_label.' + data_type)
+    expl_3['path'] = os.path.join(
+        data_path, freq_prefix + preproc + 'expl_3_label.' + data_type)
     target_label['path'] = os.path.join(data_path, 'labels.' + data_type)
 
     s1['sent'] = [line.rstrip() for line in open(s1['path'], 'r')]
     s2['sent'] = [line.rstrip() for line in open(s2['path'], 'r')]
     expl_1['sent'] = [line.rstrip() for line in open(expl_1['path'], 'r')]
     expl_2['sent'] = [line.rstrip() for line in open(expl_2['path'], 'r')]
-    expl_3['sent'] = [line.rstrip() for line in open(expl_3['path'], 'r')]                         
-    target_label['data'] = np.array([NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
-    target_label_expl['data'] = [line.rstrip() for line in open(target_label['path'], 'r')]
+    expl_3['sent'] = [line.rstrip() for line in open(expl_3['path'], 'r')]
+    target_label['data'] = np.array(
+        [NLI_DIC_LABELS[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
+    target_label_expl['data'] = [line.rstrip()
+                                 for line in open(target_label['path'], 'r')]
 
-    assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(target_label_expl['data']) == len(expl_1['sent']) == len(expl_2['sent']) == len(expl_3['sent'])
-    print data_path, data_type, len(s1['sent'])
-   
-    data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'label_expl': target_label_expl['data'], 'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
+    assert len(s1['sent']) == len(s2['sent']) == len(target_label['data']) == len(
+        target_label_expl['data']) == len(expl_1['sent']) == len(expl_2['sent']) == len(expl_3['sent'])
+    print(data_path, data_type, len(s1['sent']))
+
+    data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'label_expl': target_label_expl['data'],
+            'expl_1': expl_1['sent'], 'expl_2': expl_2['sent'], 'expl_3': expl_3['sent']}
 
     return data
-
 
 
 def get_dev_or_test_without_expl(data_path, data_type, dic_labels, labels_to_nli):
@@ -213,12 +227,15 @@ def get_dev_or_test_without_expl(data_path, data_type, dic_labels, labels_to_nli
 
     s1['sent'] = [line.rstrip() for line in open(s1['path'], 'r')]
     s2['sent'] = [line.rstrip() for line in open(s2['path'], 'r')]
-    target_label['data'] = np.array([dic_labels[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
-    target_label_expl['data'] = np.array([labels_to_nli[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
+    target_label['data'] = np.array(
+        [dic_labels[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
+    target_label_expl['data'] = np.array(
+        [labels_to_nli[line.rstrip('\n')] for line in open(target_label['path'], 'r')])
 
     assert len(s1['sent']) == len(s2['sent']) == len(target_label['data'])
-    print data_path, data_type.upper(), len(s1['sent'])
-    
-    data = {'s1': s1['sent'], 's2': s2['sent'], 'label': target_label['data'], 'label_expl': target_label_expl['data']}
-    
+    print(data_path, data_type.upper(), len(s1['sent']))
+
+    data = {'s1': s1['sent'], 's2': s2['sent'],
+            'label': target_label['data'], 'label_expl': target_label_expl['data']}
+
     return data
